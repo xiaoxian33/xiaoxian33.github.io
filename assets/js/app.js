@@ -112,10 +112,10 @@
     e.preventDefault();
 
     var view = link.dataset.view;
-    if (view === 'home' || view === 'posts') {
-      switchView(view);
+    if (document.getElementById('view-' + view)) {
+      switchView(view);                                   // 这个页面已经做好了
     } else {
-      switchView('placeholder', NAV_TITLES[view] || '这一页');
+      switchView('placeholder', NAV_TITLES[view] || '这一页');   // 还没做 → 占位页
     }
     if (history.replaceState) history.replaceState(null, '', '#' + view);
   });
@@ -241,6 +241,8 @@
 
   // 支持用地址栏的 #home / #posts / #hobby 直接进来
   var hash = (location.hash || '').replace('#', '');
-  if (hash === 'posts') switchView('posts');
-  else if (hash && hash !== 'home') switchView('placeholder', NAV_TITLES[hash] || '这一页');
+  if (hash && hash !== 'home') {
+    if (document.getElementById('view-' + hash)) switchView(hash);
+    else switchView('placeholder', NAV_TITLES[hash] || '这一页');
+  }
 })();

@@ -243,10 +243,63 @@ body.nav-open .main { margin-left: var(--side-open); }
 }
 .foot b { color: var(--pink-2); font-weight: 600; }
 
-/* 后端连接状态 */
+/* Backend connection status */
 .api { font-size: 12px; margin-bottom: 8px; letter-spacing: .03em; }
 .api--ok { color: var(--pink-2); }
 .api--off { color: #6e5570; }
+
+/* ============================================================
+   兴趣爱好 / 专业技能 / 做过的项目
+   ============================================================ */
+
+/* 卡片网格 */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.tile {
+  border: 1px solid var(--line); border-radius: 16px; padding: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .015));
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.tile:hover { border-color: rgba(255, 95, 162, .55); transform: translateY(-2px); box-shadow: 0 14px 34px rgba(255, 95, 162, .14); }
+.tile__mark { font-size: 26px; }
+.tile__t { font-family: var(--serif); font-size: 16px; margin: 8px 0 6px; letter-spacing: .04em; }
+.tile__d { margin: 0; color: #cbb6c9; font-size: 13.5px; line-height: 1.95; }
+
+/* 技能 */
+.skillbox { border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; margin-bottom: 14px; background: rgba(255, 255, 255, .02); }
+.skillbox__t { font-family: var(--serif); font-size: 15px; letter-spacing: .06em; margin: 0 0 10px; }
+.skillline { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 7px 0; border-bottom: 1px dashed rgba(53, 32, 60, .9); }
+.skillline:last-child { border-bottom: 0; }
+.skillline b { font-weight: 600; font-size: 13.5px; }
+.skillline__n { color: #8f7489; font-size: 12.5px; }
+.lv { font-size: 11px; border-radius: 999px; padding: 1px 9px; border: 1px solid; white-space: nowrap; }
+.lv--lit { color: #ffd6e8; border-color: rgba(255, 95, 162, .6); background: rgba(255, 95, 162, .14); }
+.lv--doing { color: var(--pink-2); border-color: rgba(255, 158, 199, .45); }
+.lv--lock { color: #6e5570; border-color: var(--line-2); }
+
+/* 项目卡 */
+.pcards { display: grid; gap: 14px; }
+.pcard {
+  border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .015));
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.pcard:hover { border-color: rgba(255, 95, 162, .55); transform: translateY(-2px); box-shadow: 0 14px 34px rgba(255, 95, 162, .14); }
+.pcard--plan { border-style: dashed; }
+.pcard__top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.pcard__emoji { font-size: 22px; }
+.pcard__top b { font-family: var(--serif); font-size: 16.5px; letter-spacing: .04em; }
+.pcard__d { margin: 0 0 12px; color: #cbb6c9; font-size: 13.5px; line-height: 1.95; }
+.pcard__note { margin: 12px 0; color: var(--muted); font-size: 12.5px; line-height: 1.9; border-left: 2px solid rgba(255, 95, 162, .4); padding-left: 12px; }
+.pcard__note b { color: var(--pink-2); }
+
+.badge { font-size: 11px; border-radius: 999px; padding: 1px 10px; border: 1px solid var(--line-2); color: #8f7489; }
+.badge--done { color: #ffd6e8; border-color: rgba(255, 95, 162, .6); background: rgba(255, 95, 162, .14); }
+.badge--doing { color: var(--pink-2); border-color: rgba(255, 158, 199, .5); background: rgba(255, 158, 199, .08); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.chip { font-size: 11.5px; color: var(--pink-2); border: 1px solid rgba(255, 95, 162, .35); border-radius: 999px; padding: 1px 10px; }
+
+a.btn-sm { display: inline-block; text-decoration: none; }
 
 /* ------------------------------ 窄屏 ------------------------------ */
 @media (max-width: 760px) {
