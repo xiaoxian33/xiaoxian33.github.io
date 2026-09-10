@@ -111,9 +111,9 @@ body.nav-open .main { margin-left: var(--side-open); }
   position: relative;
   min-height: min(78vh, 660px);
   display: flex; align-items: flex-end; justify-content: center;
-  background: url("../img/hero.jpg") center 22% / cover no-repeat;
+  background: url("../img/hero-v2.jpg") center 22% / cover no-repeat;
   overflow: hidden;
-}
+}url(https://xiaoxian33.github.io/)
 .hero__veil {
   position: absolute; inset: 0;
   background:
