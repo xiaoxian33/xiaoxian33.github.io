@@ -91,6 +91,33 @@
     </footer>
   </main>
 
+  <!-- ==================== 隐藏入口：↑ 和 ← 同时按住 才会出现 ==================== -->
+  <div class="gate" id="gate" hidden>
+    <div class="gate__box" id="gateBox">
+      <div class="gate__mark">🔒</div>
+      <div class="gate__title">站 长 验 证</div>
+      <input class="gate__input" id="gateInput" type="password" placeholder="密码" autocomplete="off" />
+      <div class="gate__hint" id="gateHint">回车确认 · Esc 取消</div>
+      <div class="gate__btns">
+        <button type="button" class="btn-sm" id="gateOk">确认</button>
+        <button type="button" class="btn-sm btn-sm--ghost" id="gateCancel">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 进入编辑模式后才出现 ==================== -->
+  <div class="root-badge" id="rootBadge" hidden>● ROOT</div>
+  <aside class="owner" id="ownerPanel" hidden>
+    <div class="owner__title">👑 编辑模式（试做版）</div>
+    <ul class="owner__list">
+      <li>✏️ 修改简介</li>
+      <li>🖼️ 换头像 / 换背景图</li>
+      <li>✍️ 发帖</li>
+    </ul>
+    <p class="owner__note">这三样现在<b>还不能保存</b>。等接上后端（Spring Boot + MySQL），你就能真的在这里改，改完别人也看得到。</p>
+    <button type="button" class="btn-sm btn-sm--ghost" id="ownerExit">退出编辑模式</button>
+  </aside>
+
   <script src="assets/js/app.js"></script>
 </body>
 </html>

@@ -127,6 +127,76 @@
     });
   }
 
+  /* ---------------------- 隐藏入口：↑ + ← 同时按住 ---------------------- */
+  // ⚠️ 说清楚：这只是「门帘」，不是锁。
+  //    写在网页里的密码，任何人查看源码都能看到 —— 所以现在里面没有任何真数据。
+  //    等接上后端，密码会放到服务器上校验，那时才算真的锁。
+  var ADMIN_PASSWORD = 'admin123';   // ← 临时密码，改这一行就能换
+
+  var gate = document.getElementById('gate');
+  var gateBox = document.getElementById('gateBox');
+  var gateInput = document.getElementById('gateInput');
+  var ownerPanel = document.getElementById('ownerPanel');
+  var rootBadge = document.getElementById('rootBadge');
+  var heldKeys = Object.create(null);
+
+  function openGate() {
+    if (!gate || !gate.hidden) return;
+    gate.hidden = false;
+    gateInput.value = '';
+    setTimeout(function () { gateInput.focus(); }, 0);
+  }
+
+  function closeGate() {
+    if (gate) gate.hidden = true;
+  }
+
+  function enterOwnerMode() {
+    closeGate();
+    document.body.classList.add('owner-mode');
+    if (ownerPanel) ownerPanel.hidden = false;
+    if (rootBadge) rootBadge.hidden = false;
+  }
+
+  function exitOwnerMode() {
+    document.body.classList.remove('owner-mode');
+    if (ownerPanel) ownerPanel.hidden = true;
+    if (rootBadge) rootBadge.hidden = true;
+  }
+
+  function submitPassword() {
+    if ((gateInput.value || '').trim() === ADMIN_PASSWORD) { enterOwnerMode(); return; }
+    // 失败时什么都不说，只是抖一下（陌生人看了也以为是个坏掉的小弹窗）
+    gateBox.classList.add('is-shake');
+    setTimeout(function () { gateBox.classList.remove('is-shake'); }, 420);
+    gateInput.value = '';
+    gateInput.focus();
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (gate && !gate.hidden) {
+      if (e.key === 'Enter') { e.preventDefault(); submitPassword(); }
+      else if (e.key === 'Escape') { e.preventDefault(); closeGate(); }
+      return;
+    }
+    var el = document.activeElement;
+    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return;
+
+    heldKeys[e.key] = true;
+    if (heldKeys.ArrowUp && heldKeys.ArrowLeft) { e.preventDefault(); openGate(); }
+  });
+
+  document.addEventListener('keyup', function (e) { heldKeys[e.key] = false; });
+  window.addEventListener('blur', function () { heldKeys = Object.create(null); });
+
+  var gateOk = document.getElementById('gateOk');
+  var gateCancel = document.getElementById('gateCancel');
+  var ownerExit = document.getElementById('ownerExit');
+  if (gateOk) gateOk.addEventListener('click', submitPassword);
+  if (gateCancel) gateCancel.addEventListener('click', closeGate);
+  if (ownerExit) ownerExit.addEventListener('click', exitOwnerMode);
+  if (gate) gate.addEventListener('click', function (e) { if (e.target === gate) closeGate(); });
+
   /* ---------------------- 启动 ---------------------- */
   mountList('postListHome', 'pagerHome', 'home');
   mountList('postListAll', 'pagerAll', 'all');
