@@ -12,8 +12,8 @@ desktop.ini
 .vscode/
 *.iml
 
-# ---- 第二阶段：后端（M4）----
-# 密钥、数据库密码一律走环境变量，绝不入库
-backend/target/
-backend/.env
-backend/src/main/resources/application-local.properties
+# ---- 第二阶段：后端（Spring Boot）----
+# 编译产物、日志、以及含密码的本地配置文件，都不入库
+server/target/
+server/.mvn/wrapper/maven-wrapper.jar.bak
+server/src/main/resources/application-local.properties
