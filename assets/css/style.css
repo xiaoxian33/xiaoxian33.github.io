@@ -320,6 +320,9 @@ a.btn-sm { display: inline-block; text-decoration: none; }
 .fold__body a { color: var(--pink-2); border-bottom: 1px dashed rgba(255, 158, 199, .5); }
 .fold__warn { color: var(--muted); font-size: 12.5px; border-left: 2px solid rgba(255, 95, 162, .4); padding-left: 12px; }
 
+/* 歌词引用 */
+.lyric { margin: 0 0 12px; padding: 4px 0 4px 14px; border-left: 2px solid rgba(255, 95, 162, .45); color: #d9c6d6; font-size: 13px; line-height: 2.15; font-style: italic; }
+
 /* ------------------------------ 窄屏 ------------------------------ */
 @media (max-width: 760px) {
   :root { --side: 56px; --side-open: 188px; }
