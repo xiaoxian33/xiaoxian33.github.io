@@ -22,6 +22,9 @@
 
 * { box-sizing: border-box; }
 
+/* 修复：让 hidden 属性真正生效（否则会被 .gate 的 display:flex 覆盖） */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; }
 
 body {
