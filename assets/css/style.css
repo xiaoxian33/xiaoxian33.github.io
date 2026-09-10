@@ -243,6 +243,11 @@ body.nav-open .main { margin-left: var(--side-open); }
 }
 .foot b { color: var(--pink-2); font-weight: 600; }
 
+/* 后端连接状态 */
+.api { font-size: 12px; margin-bottom: 8px; letter-spacing: .03em; }
+.api--ok { color: var(--pink-2); }
+.api--off { color: #6e5570; }
+
 /* ------------------------------ 窄屏 ------------------------------ */
 @media (max-width: 760px) {
   :root { --side: 56px; --side-open: 188px; }

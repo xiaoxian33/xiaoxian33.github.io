@@ -197,9 +197,47 @@
   if (ownerExit) ownerExit.addEventListener('click', exitOwnerMode);
   if (gate) gate.addEventListener('click', function (e) { if (e.target === gate) closeGate(); });
 
+  /* ---------------------- 第 2 步：让网页去调后端 ---------------------- */
+  // 后端地址：现在它跑在你自己的电脑上，所以是 localhost。
+  // 以后把后端部署到服务器，只需要改这一行。
+  var API_BASE = 'http://localhost:8080';
+
+  var apiStatusEl = document.getElementById('apiStatus');
+
+  function setApiStatus(text, ok) {
+    if (!apiStatusEl) return;
+    apiStatusEl.textContent = text;
+    apiStatusEl.className = 'api ' + (ok ? 'api--ok' : 'api--off');
+  }
+
+  function checkBackend() {
+    if (!apiStatusEl) return;
+    setApiStatus('正在连接后端…', false);
+
+    // 4 秒还没回应就算"没连上"（不然页面会一直等）
+    var controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var timer = setTimeout(function () { if (controller) controller.abort(); }, 4000);
+
+    fetch(API_BASE + '/api/hello', controller ? { signal: controller.signal } : {})
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        clearTimeout(timer);
+        var t = (data.time || '').slice(11, 19);
+        setApiStatus('后端已连接 · ' + (data.message || 'ok') + (t ? '（' + t + '）' : ''), true);
+      })
+      .catch(function () {
+        clearTimeout(timer);
+        setApiStatus('后端未连接 — 这是正常的，你现在没开本地后端', false);
+      });
+  }
+
   /* ---------------------- 启动 ---------------------- */
   mountList('postListHome', 'pagerHome', 'home');
   mountList('postListAll', 'pagerAll', 'all');
+  checkBackend();
 
   // 支持用地址栏的 #home / #posts / #hobby 直接进来
   var hash = (location.hash || '').replace('#', '');
