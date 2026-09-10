@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>张书贤 · 个人小站</title>
+  <meta name="description" content="张书贤的个人小站：关于我、兴趣爱好、专业技能、做过的项目、发帖，以及一个 AI 分身。" />
+  <meta name="theme-color" content="#0a070c" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%80%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+  <!-- ==================== 左侧导航 ==================== -->
+  <aside class="side">
+    <button class="side__toggle" id="navToggle" type="button" aria-label="展开 / 收起导航">
+      <span class="side__mark">♡</span>
+      <span class="side__text">导航</span>
+    </button>
+
+    <nav class="nav" id="nav">
+      <a class="nav__item is-active" href="#home"     data-view="home"><i class="nav__icon">🎀</i><span class="nav__label">关于我</span></a>
+      <a class="nav__item"           href="#hobby"    data-view="hobby"><i class="nav__icon">🖤</i><span class="nav__label">兴趣爱好</span></a>
+      <a class="nav__item"           href="#skill"    data-view="skill"><i class="nav__icon">✦</i><span class="nav__label">专业技能</span></a>
+      <a class="nav__item"           href="#projects" data-view="projects"><i class="nav__icon">🕸️</i><span class="nav__label">做过的项目</span></a>
+      <a class="nav__item"           href="#posts"    data-view="posts"><i class="nav__icon">✉️</i><span class="nav__label">发帖</span></a>
+      <a class="nav__item"           href="#ai"       data-view="ai"><i class="nav__icon">🫧</i><span class="nav__label">AI 分身</span></a>
+    </nav>
+
+    <div class="side__foot">
+      <span class="nav__label">v0.1 · 施工中</span>
+    </div>
+  </aside>
+
+  <!-- ==================== 右侧内容 ==================== -->
+  <main class="main">
+
+    <!-- ---------- 首页：大图 + 头像 + 简介 + 近期发帖 ---------- -->
+    <section class="view is-active" id="view-home">
+      <header class="hero">
+        <div class="hero__veil"></div>
+        <div class="hero__inner">
+          <img class="avatar" src="assets/img/avatar.jpg" alt="头像" />
+          <h1 class="hero__name">张书贤</h1>
+          <p class="hero__tagline">把每一次作业，都做成作品</p>
+          <p class="hero__intro">
+            计算机专业在读 · 喜欢 Java，也喜欢一切「能真的跑起来」的东西<br />
+            在做项目、在写代码，也在慢慢变成一个更好的人
+          </p>
+          <div class="hero__chips">
+            <span>#Java</span><span>#Spring Boot</span><span>#初学者</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="lace"></div>
+
+      <section class="wrap">
+        <h2 class="sec__title">近期发帖</h2>
+        <p class="sec__sub">我写下的学习心得和碎碎念 · 只有我能发，你只能看 👀</p>
+        <div class="post-list" id="postListHome"></div>
+        <div class="pager" id="pagerHome"></div>
+      </section>
+    </section>
+
+    <!-- ---------- 发帖：全部列表 ---------- -->
+    <section class="view" id="view-posts">
+      <section class="wrap wrap--top">
+        <h2 class="sec__title">全部发帖</h2>
+        <p class="sec__sub">按时间倒序排列</p>
+        <div class="post-list" id="postListAll"></div>
+        <div class="pager" id="pagerAll"></div>
+      </section>
+    </section>
+
+    <!-- ---------- 其它页面：先占位 ---------- -->
+    <section class="view" id="view-placeholder">
+      <div class="blank">
+        <div class="blank__mark">🚧</div>
+        <h2 class="blank__title" id="blankTitle">这一页还在施工</h2>
+        <p class="blank__text">
+          目前只做好了首页和发帖页。<br />
+          你告诉我先做哪一个，我就把哪一个做出来。
+        </p>
+        <a class="blank__back" href="#home" data-view="home">← 先回首页</a>
+      </div>
+    </section>
+
+    <footer class="foot">
+      © 2026 张书贤 · 本站由 <b>Vibe Coding</b> 方式开发，<b>DeepSeek V4 Flash</b> 辅助完成
+    </footer>
+  </main>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
