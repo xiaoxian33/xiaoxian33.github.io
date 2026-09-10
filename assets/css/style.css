@@ -111,7 +111,7 @@ body.nav-open .main { margin-left: var(--side-open); }
   position: relative;
   min-height: min(78vh, 660px);
   display: flex; align-items: flex-end; justify-content: center;
-  background: url("../img/hero-v3.jpg") center center / contain no-repeat;
+  background: url("../img/hero-v4.jpg") center center / 100% 100% no-repeat;
   background-color: var(--bg-2);
   overflow: hidden;
 }url(https://xiaoxian33.github.io/)
