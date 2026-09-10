@@ -301,6 +301,25 @@ body.nav-open .main { margin-left: var(--side-open); }
 
 a.btn-sm { display: inline-block; text-decoration: none; }
 
+/* 分区盒子（兴趣爱好页） */
+.sect { border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; margin-bottom: 14px; background: rgba(255, 255, 255, .02); }
+.sect__t { font-family: var(--serif); font-size: 15px; letter-spacing: .06em; margin: 0 0 8px; }
+.sect__lbl { font-size: 12.5px; color: #8f7489; margin: 10px 0 6px; }
+.item { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 6px 0; border-bottom: 1px dashed rgba(53, 32, 60, .9); }
+.item:last-child { border-bottom: 0; }
+.item b { font-weight: 600; font-size: 13.5px; color: var(--text); }
+.item > span { color: #cbb6c9; font-size: 13px; }
+
+/* 折叠块（敏感内容，默认收起） */
+.fold { border: 1px dashed var(--line-2); border-radius: 16px; padding: 14px 18px; margin-bottom: 14px; background: rgba(255, 255, 255, .015); }
+.fold summary { cursor: pointer; color: var(--pink-2); font-size: 13.5px; line-height: 1.9; }
+.fold[open] summary { margin-bottom: 10px; }
+.fold__body { color: #cbb6c9; font-size: 13.5px; line-height: 2; }
+.fold__body p { margin: 0 0 10px; }
+.fold__body b { color: var(--pink-2); }
+.fold__body a { color: var(--pink-2); border-bottom: 1px dashed rgba(255, 158, 199, .5); }
+.fold__warn { color: var(--muted); font-size: 12.5px; border-left: 2px solid rgba(255, 95, 162, .4); padding-left: 12px; }
+
 /* ------------------------------ 窄屏 ------------------------------ */
 @media (max-width: 760px) {
   :root { --side: 56px; --side-open: 188px; }
