@@ -1,0 +1,19 @@
+# ---- 运行日志 / 临时文件 ----
+*.log
+run.log
+
+# ---- 操作系统 ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- 编辑器 ----
+.idea/
+.vscode/
+*.iml
+
+# ---- 第二阶段：后端（M4）----
+# 密钥、数据库密码一律走环境变量，绝不入库
+backend/target/
+backend/.env
+backend/src/main/resources/application-local.properties

@@ -1,0 +1,18 @@
+{
+  "title": "未探索地图",
+  "subtitle": "灰雾里的是还没建好的区域。这个网站不会完工——它只会一直生长。",
+  "zones": [
+    { "id": "shell", "name": "桌面 OS 外壳", "status": "done", "icon": "🖥️", "desc": "开机自检动画、桌面图标、可拖拽窗口、任务栏时钟。已经能住人了。" },
+    { "id": "portfolio", "name": "作品集数据层", "status": "done", "icon": "📁", "desc": "项目全部由 data/projects/*.json 生成：新增一个文件，桌面上就多一个作品。" },
+    { "id": "skilltree", "name": "技能树", "status": "done", "icon": "🧬", "desc": "已点亮 / 修炼中 / 未解锁三态，每项技能挂着作品证据。" },
+    { "id": "secret", "name": "隐藏管理模式", "status": "building", "icon": "🔐", "desc": "只有我能叫出来的终端，敲对暗号才能进入编辑态。访客看不到任何登录入口。" },
+    { "id": "journal", "name": "学习手账", "status": "building", "icon": "✍️", "desc": "像发 plog 一样记录每日所学，图片 + 正文，只有我能发，访客只读。" },
+    { "id": "npc", "name": "AI 分身「另一个我」", "status": "planned", "icon": "👤", "desc": "一个读过我所有笔记和代码的窗口，你可以直接问它我做过什么、在学什么。" },
+    { "id": "achievements", "name": "成就系统", "status": "planned", "icon": "🏆", "desc": "发满十篇手账、连续更新三十天、第一次部署上线……都会解锁徽章。" },
+    { "id": "crypto", "name": "密码学小工具间", "status": "planned", "icon": "🔑", "desc": "把课堂上的凯撒密码、频率分析做成可以随手玩的小玩具。" },
+    { "id": "guestbook", "name": "访客足迹", "status": "planned", "icon": "👣", "desc": "留一句话给我。需要后端加一张表，顺带练接口限流。" },
+    { "id": "mobile", "name": "移动端适配", "status": "planned", "icon": "📱", "desc": "桌面优先，等你真的想用手机翻它的时候再做。" },
+    { "id": "domain", "name": "专属域名", "status": "planned", "icon": "🌐", "desc": "从 github.io 搬到一个真正属于自己的地址。" },
+    { "id": "oss", "name": "开源与分享", "status": "planned", "icon": "🪐", "desc": "把这个站点的搭建过程写成技术文章，让别人也能照着做一台。" }
+  ]
+}

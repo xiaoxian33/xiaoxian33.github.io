@@ -1,0 +1,45 @@
+{
+  "id": "cyber-tunnel",
+  "name": "Cyber-Tunnel",
+  "subtitle": "用药记录与心得分享社区",
+  "emoji": "💊",
+  "status": "done",
+  "featured": true,
+  "role": "全栈独立开发",
+  "period": "2026 春 · 大二下课程项目",
+  "tagline": "一份课程作业，最后长成了一个真的能用的产品。",
+  "summary": "面向需要长期、规律用药人群（尤其是青少年）的自我管理 + 同伴支持社区：用药记账本 + 心得手账 + 支持型社区三合一。既私密地管理真实用药数据，也能在彼此尊重的前提下分享心路。",
+  "stack": ["Java 17", "Spring Boot", "Spring Data JPA", "MySQL", "Jackson", "原生 HTML / CSS / JS"],
+  "links": [
+    { "label": "源码仓库", "url": "https://github.com/xiaoxian33/medicine-box" },
+    { "label": "安全改造记录", "url": "https://github.com/xiaoxian33/medicine-box/blob/main/docs/AUTH-SECURITY.md" }
+  ],
+  "highlights": [
+    "复古像素赛博风 Y2K 界面：仿 OS 窗口，记录也可以很可爱",
+    "剂量风险预警 + 近 7/14/30 天风险看板、本周 vs 上周趋势、连续记录天数",
+    "用药组合一键登记：常用方案存成模板，批量落账",
+    "公开 / 私密双流社区：私密只属于自己，公开与全站伙伴相遇",
+    "药品库存扣减、备忘录、点赞评论、登录注册与数据隔离"
+  ],
+  "story": {
+    "problem": "很多需要长期用药的人并不缺药，缺的是被理解、被支持的安全感；而“记录用药”常常像在交差。我想让它变成一件对自己负责、也能温暖别人的事。",
+    "pits": [
+      "早期把 userId 交给前端传——存在水平越权（IDOR）：把 userId=1 改成别人的 id 就能看改删他人私密记录",
+      "token 存在 localStorage 里，任何人都能改，后端没有任何手段验证“你真的是这个人”",
+      "重新登录会作废旧 token（deleteByUserId），一账号多端会互相顶下线",
+      "药品库存表 medicine_name 全局唯一，导致不同用户不能拥有同名药"
+    ],
+    "upgrade": [
+      "引入后端签发 Token：登录→签发凭证→拦截器验票→ThreadLocal 保存当前用户，身份只由服务端推导",
+      "所有写操作加归属校验 findByIdAndUserId(id, 我的id)，查不到就是没权限",
+      "DTO 里彻底删掉 userId 字段，前端想传也没地方传",
+      "库存表改为 (user_id, medicine_name) 联合唯一，每个用户各自管理同名药"
+    ]
+  },
+  "learned": "第一次完整跑通「签发凭证 → 拦截器验票 → 业务只信服务端」的认证链路；也第一次明白：安全不是一个功能，而是一种设计。这份踩坑记录后来被我写成了文档，成了我面试时最想讲的一段经历。",
+  "future": [
+    "用药间隔 / 重复用药提醒，个人健康月报",
+    "匿名互助小组、康复故事、结构化打卡",
+    "敏感健康数据加密存储与合规审计"
+  ]
+}
