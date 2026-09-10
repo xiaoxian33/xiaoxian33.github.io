@@ -212,6 +212,14 @@ body.nav-open .main { margin-left: var(--side-open); }
 .pager button:disabled { opacity: .35; cursor: not-allowed; }
 .pager__info { color: var(--muted); font-size: 12px; margin-left: 6px; }
 
+/* ------------------------------ 空状态 ------------------------------ */
+.empty {
+  text-align: center; padding: 46px 24px;
+  border: 1px dashed var(--line-2); border-radius: 16px;
+  color: var(--muted); font-size: 14px; line-height: 2;
+}
+.empty__mark { display: block; font-size: 30px; margin-bottom: 8px; opacity: .85; }
+
 /* ------------------------------ 占位页 ------------------------------ */
 .blank {
   min-height: 78vh; display: flex; flex-direction: column;
