@@ -83,6 +83,7 @@
     hobby: '兴趣爱好',
     skill: '专业技能',
     projects: '做过的项目',
+    essay: '随笔',
     ai: 'AI 分身'
   };
 
