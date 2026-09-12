@@ -4,6 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -18,15 +19,23 @@ import java.util.List;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private final EssayRepository repository;
+    private final EssayRepository essayRepository;
+    private final ProfileRepository profileRepository;
 
-    public DataSeeder(EssayRepository repository) {
-        this.repository = repository;
+    public DataSeeder(EssayRepository essayRepository, ProfileRepository profileRepository) {
+        this.essayRepository = essayRepository;
+        this.profileRepository = profileRepository;
     }
 
     @Override
     public void run(String... args) {
-        long existing = repository.count();
+        seedEssays();
+        seedProfile();
+    }
+
+    /** 把旧文搬进 essay 表（只搬一次） */
+    private void seedEssays() {
+        long existing = essayRepository.count();
         if (existing > 0) {
             System.out.println("[DataSeeder] essay 表已有 " + existing + " 篇，跳过导入");
             return;
@@ -90,7 +99,29 @@ public class DataSeeder implements CommandLineRunner {
                 """.strip(), 8)
         );
 
-        repository.saveAll(essays);
+        essayRepository.saveAll(essays);
         System.out.println("[DataSeeder] 已导入 " + essays.size() + " 篇旧文到 essay 表");
+    }
+
+    /** 把现在的资料（名字 / 一句话 / 简介 / 图片路径）搬进 profile 表（只搬一次） */
+    private void seedProfile() {
+        if (profileRepository.count() > 0) {
+            System.out.println("[DataSeeder] profile 表已有资料，跳过");
+            return;
+        }
+
+        Profile profile = new Profile();
+        profile.setName("张书贤");
+        profile.setTagline("把每一次作业，都做成作品");
+        profile.setIntro("""
+                计算机专业在读 · 喜欢 Java，也喜欢一切「能真的跑起来」的东西
+                在做项目、在写代码，也在慢慢变成一个更好的人""");
+        profile.setAvatarPath("assets/img/avatar.jpg");
+        profile.setHeroPath("assets/img/hero-v4.jpg");
+        profile.setGithub("https://github.com/xiaoxian33");
+        profile.setUpdatedAt(LocalDateTime.now());
+
+        profileRepository.save(profile);
+        System.out.println("[DataSeeder] 已写入 profile（我的资料）");
     }
 }
