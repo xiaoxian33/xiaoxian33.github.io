@@ -14,6 +14,9 @@
   --pink-soft: rgba(255, 95, 162, .14);
   --text: #f6ebf3;
   --muted: #b193ad;
+  /* 比 muted 更淡一档，但依然达到可读标准（对比度 ≈ 5.8:1）
+     以前这里用的是 #6e5570，对比度只有 3:1，页脚/提示那种小字看不清 */
+  --faint: #9b829c;
   --side: 64px;
   --side-open: 216px;
   --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", Georgia, serif;
@@ -94,7 +97,7 @@ body.nav-open .nav__label { opacity: 1; }
 
 .side__foot {
   margin-top: auto; padding: 10px 10px 4px;
-  color: #6e5570; font-size: 12px; white-space: nowrap;
+  color: var(--faint); font-size: 12px; white-space: nowrap;
 }
 
 /* ------------------------------ 内容区 ------------------------------ */
@@ -117,14 +120,28 @@ body.nav-open .main { margin-left: var(--side-open); }
   background: url("../img/hero-v4.jpg") center center / 100% 100% no-repeat;
   background-color: var(--bg-2);
   overflow: hidden;
-}url(https://xiaoxian33.github.io/)
+}
+
+/* 压暗遮罩 —— 首页文字可读性的关键
+   ⚠️ 这里以前写成 .hero 后面多了一行 }url(...)，浏览器会把整条 .hero__veil 规则当成
+      非法选择器丢掉 → 遮罩一整天没生效，白字直接压在亮图上（对比度只有 1.45:1）。 */
 .hero__veil {
   position: absolute; inset: 0;
   background:
-    linear-gradient(180deg, rgba(10, 7, 12, .10) 0%, rgba(10, 7, 12, .26) 38%, rgba(10, 7, 12, .80) 78%, var(--bg) 100%),
-    radial-gradient(42% 55% at 8% 26%, rgba(255, 95, 162, .14), transparent 70%),
-    radial-gradient(42% 55% at 92% 26%, rgba(183, 154, 201, .12), transparent 70%),
-    radial-gradient(55% 45% at 50% 78%, rgba(255, 95, 162, .22), transparent 72%);
+    /* ① 全局压暗：这张图整体很亮（平均亮度约 200/255），不压就根本没法放白字 */
+    linear-gradient(180deg,
+      rgba(10, 7, 12, .46) 0%,
+      rgba(10, 7, 12, .55) 40%,
+      rgba(10, 7, 12, .72) 62%,
+      rgba(10, 7, 12, .86) 78%,
+      rgba(10, 7, 12, .94) 90%,
+      var(--bg) 100%),
+    /* ② 文字正后方再垫一层，保证名字 / 简介不糊 */
+    radial-gradient(58% 44% at 50% 76%, rgba(10, 7, 12, .58), transparent 72%),
+    /* ③ 地雷系的氛围光：左右各一点粉、底部一点暖粉 */
+    radial-gradient(42% 55% at 8% 26%, rgba(255, 95, 162, .16), transparent 70%),
+    radial-gradient(42% 55% at 92% 26%, rgba(183, 154, 201, .13), transparent 70%),
+    radial-gradient(48% 42% at 50% 86%, rgba(255, 95, 162, .18), transparent 74%);
 }
 .hero__inner {
   position: relative; z-index: 2;
@@ -144,21 +161,28 @@ body.nav-open .main { margin-left: var(--side-open); }
 .hero__name {
   margin: 0; font-family: var(--serif);
   font-size: clamp(28px, 4.4vw, 42px); letter-spacing: .08em;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, .8);
+  /* 近处一层 + 远处一层：不管底下是亮是暗，字都立得住 */
+  text-shadow: 0 2px 8px rgba(0, 0, 0, .92), 0 8px 30px rgba(0, 0, 0, .78);
 }
 .hero__name::before { content: "♡ "; color: var(--pink); font-size: .7em; }
 .hero__tagline {
   margin: 10px 0 14px; color: var(--pink-2);
   font-size: clamp(14px, 1.8vw, 17px); letter-spacing: .06em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .9), 0 2px 16px rgba(0, 0, 0, .78);
 }
-.hero__intro { margin: 0; color: #e2d3e2; font-size: 14px; line-height: 2; text-shadow: 0 1px 12px rgba(0, 0, 0, .9); }
+.hero__intro {
+  margin: 0; color: #eadcea; font-size: 14px; line-height: 2;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .9), 0 2px 14px rgba(0, 0, 0, .8);
+}
 .hero__chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
 .hero__chips span {
   font-size: 12.5px; color: var(--pink-2);
-  border: 1px solid rgba(255, 95, 162, .45);
-  background: rgba(255, 95, 162, .10);
+  border: 1px solid rgba(255, 158, 199, .5);
+  /* 给小标签自己一个深底，否则压在亮图上几乎看不见边框 */
+  background: rgba(12, 7, 13, .55);
   border-radius: 999px; padding: 2px 12px;
   backdrop-filter: blur(2px);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .8);
 }
 
 /* ------------------------------ 蕾丝分隔 ------------------------------ */
@@ -238,7 +262,7 @@ body.nav-open .main { margin-left: var(--side-open); }
 /* ------------------------------ 页脚 ------------------------------ */
 .foot {
   text-align: center; padding: 26px 20px 36px;
-  color: #6e5570; font-size: 12px;
+  color: var(--faint); font-size: 12px;
   border-top: 1px solid var(--line);
 }
 .foot b { color: var(--pink-2); font-weight: 600; }
@@ -246,7 +270,7 @@ body.nav-open .main { margin-left: var(--side-open); }
 /* Backend connection status */
 .api { font-size: 12px; margin-bottom: 8px; letter-spacing: .03em; }
 .api--ok { color: var(--pink-2); }
-.api--off { color: #6e5570; }
+.api--off { color: var(--faint); }
 
 /* ============================================================
    兴趣爱好 / 专业技能 / 做过的项目
@@ -274,7 +298,7 @@ body.nav-open .main { margin-left: var(--side-open); }
 .lv { font-size: 11px; border-radius: 999px; padding: 1px 9px; border: 1px solid; white-space: nowrap; }
 .lv--lit { color: #ffd6e8; border-color: rgba(255, 95, 162, .6); background: rgba(255, 95, 162, .14); }
 .lv--doing { color: var(--pink-2); border-color: rgba(255, 158, 199, .45); }
-.lv--lock { color: #6e5570; border-color: var(--line-2); }
+.lv--lock { color: var(--faint); border-color: var(--line-2); }
 
 /* 项目卡 */
 .pcards { display: grid; gap: 14px; }
@@ -406,7 +430,7 @@ a.btn-sm { display: inline-block; text-decoration: none; }
   border: 1px solid var(--line-2); border-radius: 10px; padding: 10px 12px;
 }
 .gate__input:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 3px rgba(255, 95, 162, .15); }
-.gate__hint { color: #6e5570; font-size: 12px; margin: 10px 0 14px; }
+.gate__hint { color: var(--faint); font-size: 12px; margin: 10px 0 14px; }
 .gate__btns { display: flex; gap: 10px; justify-content: center; }
 
 .btn-sm {
