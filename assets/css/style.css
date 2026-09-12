@@ -455,7 +455,10 @@ a.btn-sm { display: inline-block; text-decoration: none; }
   position: fixed; right: 20px; top: 16px; z-index: 85;
   font-size: 12px; letter-spacing: .12em; color: var(--pink);
   border: 1px solid rgba(255, 95, 162, .5); border-radius: 999px;
-  padding: 2px 12px; background: rgba(255, 95, 162, .1);
+  /* 它也压在大图上方，所以给个深底 + 一点阴影 */
+  padding: 2px 12px; background: rgba(12, 7, 13, .6);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .85);
+  backdrop-filter: blur(2px);
 }
 .owner {
   position: fixed; right: 20px; bottom: 20px; z-index: 85;
