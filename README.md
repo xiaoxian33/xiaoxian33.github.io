@@ -55,7 +55,7 @@
 ## 📚 文档
 
 - [🐬 在新电脑上装 MySQL、建库、搬数据](docs/MYSQL-SETUP.md) —— 换电脑 / 配环境时照着做
-- [📓 学习日志（按天记录）](docs/LEARNING-LOG.md) —— 每天问过的知识点，方便复习
+- [📓 我的问题笔记](docs/LEARNING-LOG.md) —— 我问过的那些问题，和答案
 
 ## 📎 说明
 
