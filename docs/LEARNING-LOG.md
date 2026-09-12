@@ -70,6 +70,8 @@
 - 登录接口：`POST /api/login`（密码 → 令牌）、`POST /api/logout`（令牌作废）
 - 门卫：`OwnerAuthInterceptor` + `WebConfig`，只守 `/api/admin/**`
 - 验证结果：不带令牌 401 ✅ ｜ 错密码 401 ✅ ｜ 对密码拿到 32 位令牌 ✅ ｜ 带令牌 200 ✅
+- 随笔的**写接口**（增 / 改 / 删），全部挂在 `/api/admin/essays` 下 → 自动被门卫保护
+- 完整一圈测试：无令牌新增 401 ✅ ｜ 登录拿令牌 ✅ ｜ 新增（8 → 9 篇）✅ ｜ 修改 ✅ ｜ 删除（9 → 8 篇）✅
 
 ### 重要知识点
 **1. 认证 vs 授权**
@@ -100,12 +102,41 @@ MySQL 的行 ──Hibernate──▶ Java 对象 ──Jackson──▶ JSON �
 ```
 - **Jackson** 管 JSON ↔ Java；**Hibernate** 管 Java ↔ SQL
 
+**7. "写接口"就是"拿到令牌之后，真正改数据库"的那几个接口**
+
+| 动词 | 接口 | 干什么 |
+|---|---|---|
+| `POST` | `/api/admin/essays` | 新增一篇 |
+| `PUT` | `/api/admin/essays/{id}` | 修改某一篇 |
+| `DELETE` | `/api/admin/essays/{id}` | 删除某一篇 |
+
+- **为什么都挂在 `/api/admin/` 下？** 因为门卫只守这条线 —— 写接口放进去就自动被保护，安全代码一行都不用写
+- 写入的"约定"用一个 `record`（`EssayForm`）表示：`{ writtenOn, title, body }`
+- `repository.save(对象)`：**没有 id 就是 INSERT，有 id 就是 UPDATE** —— 同一个方法干两件事
+
+---
+
+## 踩坑记录（都是真实发生过的）
+
+| 现象 | 原因 | 怎么解决 |
+|---|---|---|
+| `Port 8080 was already in use` | 上次的后端没退干净 | `taskkill /IM java.exe /F` 清场 |
+| `Unable to rename ... .jar`（打包失败） | **程序还在跑，文件被系统锁住** | 先停掉程序再打包 |
+| `Non-parseable POM` | `pom.xml` 开头多了字符（手滑） | 看报错的行号，删掉多余字符 |
+| 命令行整条不执行 | PowerShell 括号没配对 | 数一遍 `(` 和 `)` |
+| 网页看不到新内容 | 浏览器缓存 | `Ctrl + Shift + R`，或给文件换个名字 |
+| 命令直接双击 `index.html` 打不开数据 | `file://` 会被浏览器拦 | 用本地服务器，或让后端来提供数据 |
+
 ---
 
 ## 待办 / 下一步
 
-- [ ] **随笔的写接口**：`/api/admin/essays` 的新增(POST) / 修改(PUT) / 删除(DELETE)
+- [x] 门卫 + 登录接口（`/api/login`、`/api/admin/**` 保护） —— 2026-09-12
+- [x] **随笔的写接口**：新增(POST) / 修改(PUT) / 删除(DELETE) —— 2026-09-12
 - [ ] 前端把 `admin123` 换成真去调 `/api/login`（拿令牌并保存）
+- [ ] 随笔页改成从 `/api/essays` 取数据（保留"后端没开就用静态内容"的兜底）
+- [ ] 编辑模式的界面：新增 / 编辑 / 删除随笔
 - [ ] 管理页：能在网页上改简介 / 头像 / 背景图 / 发帖
 - [ ] `profile` 表、`post` 表（照同一套配方）
 - [ ] 部署到服务器（别人访问时，发帖 / AI 分身才用得上）
+
