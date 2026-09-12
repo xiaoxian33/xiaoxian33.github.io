@@ -19,4 +19,7 @@ public interface EssayRepository extends JpaRepository<Essay, Long> {
 
     /** 按写作日期从晚到早 */
     List<Essay> findAllByOrderByWrittenOnDesc();
+
+    /** 找排序号最大的那一篇（新增时用来决定"排到最后"） */
+    java.util.Optional<Essay> findFirstByOrderBySortOrderDesc();
 }
