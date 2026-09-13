@@ -111,11 +111,11 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         Profile profile = new Profile();
-        profile.setName("张书贤");
-        profile.setTagline("把每一次作业，都做成作品");
+        profile.setName("东魏轻松的芹菜");
+        profile.setTagline("想用自己学过的东西做一点自己爱做的事");
         profile.setIntro("""
-                计算机专业在读 · 喜欢 Java，也喜欢一切「能真的跑起来」的东西
-                在做项目、在写代码，也在慢慢变成一个更好的人""");
+                计算机专业在读 ·
+                在做项目、在慢慢看看不懂的代码，也在慢慢变成一个更好的人""");
         profile.setAvatarPath("assets/img/avatar.jpg");
         profile.setHeroPath("assets/img/hero-v4.jpg");
         profile.setGithub("https://github.com/xiaoxian33");
