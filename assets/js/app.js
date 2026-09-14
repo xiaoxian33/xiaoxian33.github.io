@@ -35,17 +35,51 @@
       '</a>';
   }
 
+  /* ---------------------- 翻译官：后端的 Post → 页面要的样子 ---------------------- */
+  // 后端给的字段和页面想要的【对不上】，所以在中间加这一层转换。
+  //
+  //   后端 Post 返回          页面 postHTML 想要
+  //   --------------------    -------------------------
+  //   publishedAt             date          （名字不同）
+  //   body（全文）             excerpt       （页面只要摘要）
+  //   tags: "学习,Java"       tags: ["学习","Java"]   （字符串 → 数组）
+  //
+  // 好处：转换只在这一处做，postHTML() 一行都不用改。
+  function makeExcerpt(body, max) {
+    // \s+ 匹配任意连续空白（空格 / 换行 / Tab），先压成一个空格，再截断
+    var text = String(body || '').replace(/\s+/g, ' ').trim();
+    var limit = max || 80;
+    return text.length > limit ? text.slice(0, limit) + '…' : text;
+  }
+
+  function postFromApi(p) {
+    return {
+      date: String(p.publishedAt || '').replace(/-/g, ' · '),  // 2026-09-12 → 2026 · 09 · 12
+      title: p.title || '(无标题)',
+      excerpt: makeExcerpt(p.body),
+      // "学习, Java" → ["学习","Java"]
+      // split 切 → map 去空格 → filter(Boolean) 丢掉空字符串（比如 "a,,b" 里的那个空）
+      tags: String(p.tags || '')
+        .split(',')
+        .map(function (t) { return t.trim(); })
+        .filter(Boolean)
+    };
+  }
+
   /* ---------------------- 列表 + 分页 ---------------------- */
   var state = { home: 1, all: 1 };
 
   function mountList(listId, pagerId, key) {
     var listEl = document.getElementById(listId);
     var pagerEl = document.getElementById(pagerId);
-    if (!listEl || !pagerEl) return;
-
-    var totalPages = Math.max(1, Math.ceil(POSTS.length / PAGE_SIZE));
+    if (!listEl || !pagerEl) return null;
 
     function draw() {
+      // ⚠️ 总页数必须写在 draw【里面】
+      // 因为 POSTS 一开始是空的，等接口数据到了才有内容。
+      // 如果写在函数外面，它只会在"挂载的那一刻"算一次 —— 那样永远只有 1 页。
+      var totalPages = Math.max(1, Math.ceil(POSTS.length / PAGE_SIZE));
+
       if (!POSTS.length) {
         listEl.innerHTML = '<div class="empty"><span class="empty__mark">♡</span>这里还没有帖子<br />等站长发第一条</div>';
         pagerEl.innerHTML = '';
@@ -78,6 +112,9 @@
     });
 
     draw();
+
+    // 把这个"重画"的能力交出去 —— 接口数据到了以后要再画一次
+    return draw;
   }
 
   /* ---------------------- 页面切换 ---------------------- */
@@ -337,12 +374,32 @@
       });
   }
 
+  /* ---------------------- 第 5 步：「发帖」改成从数据库读 ---------------------- */
+  function loadPosts() {
+    fetch(API_BASE + '/api/posts')
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (list) {
+        POSTS = list.map(postFromApi);   // 先翻译，再交给原来那套渲染逻辑
+        if (drawHome) drawHome();        // 重画首页的「近期发帖」
+        if (drawAll) drawAll();          // 重画「发帖」页
+      })
+      .catch(function (err) {
+        // 拿不到就保持空列表 → 页面会显示"这里还没有帖子"
+        console.warn('[posts] 没拿到帖子：', err);
+      });
+  }
+
   /* ---------------------- 启动 ---------------------- */
-  mountList('postListHome', 'pagerHome', 'home');
-  mountList('postListAll', 'pagerAll', 'all');
+  // mountList 现在会返回一个"重画函数"，接住它，等数据到了再画一次
+  var drawHome = mountList('postListHome', 'pagerHome', 'home');
+  var drawAll = mountList('postListAll', 'pagerAll', 'all');
   checkBackend();
   loadProfile();
   loadEssays();
+  loadPosts();
 
   // 支持用地址栏的 #home / #posts / #hobby 直接进来
   var hash = (location.hash || '').replace('#', '');
