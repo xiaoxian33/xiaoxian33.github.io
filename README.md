@@ -1,135 +1,133 @@
 # 东魏轻松的芹菜的个人小站
 
-> 左边一条导航，点一点就能了解我 —— 一个会慢慢长大的个人网站。
+个人网站。左侧导航切换页面，内容存在数据库里 —— 访客只读，站长可写。
 
-🔗 **在线看**：https://xiaoxian33.github.io
+在线地址：**https://xiaoxian33.github.io**
 
----
+## 技术栈
 
-## 📖 这是什么
+| 层 | 技术 |
+|---|---|
+| 前端 | 原生 HTML / CSS / JS（无框架），托管在 GitHub Pages |
+| 后端 | Java 21 · Spring Boot 4.1.1 |
+| 数据库 | MySQL 8 · Spring Data JPA (Hibernate) |
+| 鉴权 | BCrypt 密码哈希 + Bearer 令牌 |
 
-一个介绍我自己的网站。左边是导航条，进来第一眼是「关于我」。
-内容基本都住在**数据库**里（随笔、资料、发帖），只有站长能改，访客只能读。
+## 页面
 
-## 🧭 页面
+| 页面 | 内容 |
+|---|---|
+| 关于我 | 头像、简介、近期发帖 |
+| 教育经历 | 教育时间线 |
+| 兴趣爱好 | 游戏 / 音乐 / 动画 / 电影 |
+| 专业技能 | 已掌握与在学 |
+| 做过的项目 | Cyber-Tunnel、本站 |
+| 随笔 | 2025 年至今 |
+| 发帖 | 学习记录（站长可写）|
+| AI 分身 | 规划中 |
 
-| 页面 | 里面有什么 |
-| --- | --- |
-| 🎀 关于我 | 头像、一句话、简介、最近在学什么、近期发帖 |
-| 🎓 教育经历 | 从北京到深圳，再到广州 |
-| 🖤 兴趣爱好 | 游戏 / 音乐 / 动画 / 电影 —— 我真正把时间和情绪花掉的地方 |
-| ✦ 专业技能 | 会什么、在学什么、还没解锁什么 |
-| 🕸️ 做过的项目 | Cyber-Tunnel、这个站，以及踩过的坑 |
-| ✒️ 随笔 | 2025 年到现在写下的东西 |
-| ✉️ 发帖 | 学习心得和碎碎念（**我能发，访客只能看**） |
-| 🫧 AI 分身 | 读过我所有文字的分身，可以直接问它关于我的事 —— **在做** |
+站长入口：同时按住 `↑` 和 `←` 调出密码框。
 
-**站长的入口藏在键盘里**：同时按住 `↑` 和 `←` 会出现密码框，登录之后才能发帖、改资料。
+## 接口设计
 
-## 🛠️ 技术栈
+读接口公开；写接口统一挂在 `/api/admin/**` 下，由 `OwnerAuthInterceptor` 统一鉴权。
 
-| 层 | 用的什么 | 备注 |
-| --- | --- | --- |
-| 前端 | 原生 HTML / CSS / JS | 没有框架，一行行写出来的；黑 + 粉的「地雷系」配色 |
-| 前端托管 | GitHub Pages | 纯静态，`index.html` 一个文件装了所有页面（用 `#锚点` 切换） |
-| 后端 | Java 21 · Spring Boot 4.1.1 | 提供 `/api/**`，负责决定「谁能读、谁能写」 |
-| 数据库 | MySQL 8 · Spring Data JPA (Hibernate) | 三张表：`essay` / `profile` / `post` |
-| 密码 | BCrypt（spring-security-crypto） | 只引哈希这一个小模块，没有引整个 Spring Security |
+    读： GET  /api/essays · /api/profile · /api/posts          公开
+    写： POST /api/admin/essays …  + Authorization: Bearer     站长
 
+新增写接口只要放在 `/api/admin/` 下面，鉴权代码无需改动。
 
-## 🔒 设计上只做了一件事，但很关键
+## 接口一览
 
-**把「读」和「写」从网址上分开：**
+| 方法 | 路径 | 权限 |
+|---|---|---|
+| `POST` | `/api/login`、`/api/logout` | 站长 |
+| `GET` | `/api/admin/whoami` | 站长（校验令牌）|
+| `GET` | `/api/essays`、`/api/profile`、`/api/posts` | 公开 |
+| `POST` / `PUT` / `DELETE` | `/api/admin/essays`、`/api/admin/essays/{id}` | 站长 |
+| `PUT` | `/api/admin/profile` | 站长 |
+| `POST` / `PUT` / `DELETE` | `/api/admin/posts`、`/api/admin/posts/{id}` | 站长 |
 
-```
-读： GET  /api/essays · /api/profile · /api/posts     → 公开，谁都能看
-写： POST /api/admin/essays ……  + 令牌                → 🚪 门卫统一拦截
-```
-
-所有写接口都挂在 `/api/admin/**` 下面，被 `OwnerAuthInterceptor` 一起保护 ——
-所以以后**每加一张新表，门卫一行都不用改**。
-
-## 🗂️ 目录结构
+## 目录结构
 
 ```
 .
-├── index.html                  所有页面都在这一个文件里
+├── index.html             所有页面都在这个文件里（用 #锚点 切换）
+├── start-backend.bat      双击启动后端（Windows）
 ├── assets/
-│   ├── css/style.css           全站样式（配色变量集中在最上面的 :root）
-│   ├── js/app.js               页面切换、渲染、分页、登录门卫、编辑模式
-│   └── img/                    头像、背景图（source/ 里是原图）
-├── server/                     后端（Spring Boot 项目，可以单独启动）
+│   ├── css/style.css      全站样式（配色变量集中在 :root）
+│   ├── js/app.js          页面切换、列表渲染、分页、登录门卫
+│   └── img/               头像、背景图
+├── server/                后端（Spring Boot，可单独启动）
 │   └── src/main/java/com/xiaoxian33/site/
-│       ├── Essay / Profile / Post ……            实体类（= 数据库里的表）
-│       ├── *Repository ……                       查询窗口
-│       ├── *Controller ……                       读接口（公开）
-│       ├── *AdminController ……                  写接口（走门卫）
-│       ├── OwnerAuthService / Interceptor / WebConfig   门卫三件套
-│       └── DataSeeder                           旧内容一次性搬进数据库
-└── docs/                       文档（见文末）
+│       ├── Essay / Profile / Post          实体类（对应数据库表）
+│       ├── *Repository                     数据访问
+│       ├── *Controller                     读接口（公开）
+│       ├── *AdminController                写接口（走门卫）
+│       ├── OwnerAuthService / OwnerAuthInterceptor / WebConfig   鉴权三件套
+│       ├── AuthController                  登录 / 登出 / whoami
+│       └── DataSeeder                      首次启动导入旧内容
+└── docs/                  文档（见文末）
 ```
 
-## 🔌 接口一览
+## 本地运行
 
-| 方法 | 网址 | 谁能用 |
-| --- | --- | --- |
-| POST | `/api/login` · `/api/logout` | 知道密码的人 / 登录者 |
-| GET | `/api/admin/whoami` | 登录者（查令牌有没有过期） |
-| GET | `/api/essays` · `/api/profile` · `/api/posts` | 公开 |
-| POST / PUT / DELETE | `/api/admin/essays`、`/api/admin/essays/{id}` | 站长 |
-| PUT | `/api/admin/profile` | 站长 |
-| POST / PUT / DELETE | `/api/admin/posts`、`/api/admin/posts/{id}` | 站长 |
+前置：JDK 21、MySQL 8。
 
-## ▶️ 本地跑起来
+**1. 配置密码**
 
-**后端**（需要先装好 MySQL，照着 [装库文档](docs/MYSQL-SETUP.md) 做）：
+新建 `server/src/main/resources/application-local.properties`（该文件已被 `.gitignore` 排除）：
 
-```bash
-cd server
-# 1) 在 src/main/resources/application-local.properties 里写两个密码（这个文件不进仓库）
-#    spring.datasource.password=你的 MySQL 密码
-#    app.owner.password=你想设的站长密码
-# 2) 启动（第一次启动会自动建表，并把旧内容灌进数据库）
-./mvnw spring-boot:run          # Windows 下用：.\mvnw.cmd spring-boot:run
-# 3) 打开 http://localhost:8080/api/essays，应该能看到一串 JSON
+```properties
+spring.datasource.password=你的 MySQL 密码
+app.owner.password=你想设的站长密码
 ```
 
-**前端**：`index.html` 是纯静态的，双击就能看。
-⚠️ 现在随笔和资料还**写死在页面里**，页面只调了 `/api/hello` 来显示「后端状态」；真正改成从数据库读，是下一步的事。
+**2. 启动后端**（两种方式任选）
 
-## 🤖 开发方式
+- Windows：双击根目录的 `start-backend.bat`
+- 命令行：
 
-这个项目是 **Vibe Coding** 做的：
+  ```bash
+  cd server
+  ./mvnw spring-boot:run        # Windows: .\mvnw.cmd spring-boot:run
+  ```
 
-- 我负责提需求、看效果、做判断、把每一块弄懂；
-- AI（DeepSeek / Claude）负责把代码写出来。
+首次启动会自动建表，并把旧内容导入数据库。
+启动成功的标志：日志出现 `Started SiteServerApplication`。
 
-学习过程记在 [我的问题笔记](docs/LEARNING-LOG.md) 里 —— **只记我问过的问题和答案**。
+**3. 打开前端**
 
-## 📌 路线图
+`index.html` 是纯静态页面，直接双击即可（需后端在 `localhost:8080` 运行）。
 
-- [x] 左侧导航 + 黑粉「地雷系」配色
-- [x] 各页面骨架（关于我 / 教育经历 / 兴趣爱好 / 专业技能 / 做过的项目 / 随笔）
+验证接口：`http://localhost:8080/api/posts`
+
+## 路线图
+
+- [x] 左侧导航 + 黑粉配色
+- [x] 各页面骨架
 - [x] 隐藏入口（`↑` + `←`）+ 编辑模式界面
-- [x] 后端接上 MySQL，随笔搬进数据库
-- [x] 门卫：登录拿令牌，保护 `/api/admin/**`
-- [x] 三张表 `essay` / `profile` / `post` 的读写接口全部打通
-- [ ] **前端接上接口**：登录真的去调 `/api/login`，页面内容从数据库读
-- [ ] 管理页能发帖、能改资料、能传图
-- [ ] AI 分身：读过我所有文字，替我回答问题
+- [x] 后端接入 MySQL：随笔 / 资料 / 发帖三张表
+- [x] 鉴权：登录拿令牌，保护 `/api/admin/**`
+- [x] 前端读取数据（关于我 / 随笔 / 发帖）
+- [ ] 前端真登录（`POST /api/login`），移除本地占位密码
+- [ ] 管理页可发帖、改资料、传图（见 [图片功能计划](docs/图片功能计划.md)）
+- [ ] AI 分身
 - [ ] 部署到云服务器（域名 + HTTPS）
 
-## 📚 文档
+## 文档
 
-- 📐 [代码结构：一页看懂每个文件管什么](docs/代码结构.md)
-- 🚀 [离上线还差什么 · 完整清单](docs/上线清单.md)
-- 🐬 [在新电脑上装 MySQL、建库、搬数据](docs/MYSQL-SETUP.md)
-- 📓 [我的问题笔记（只记我问过的）](docs/LEARNING-LOG.md)
+- [代码结构](docs/代码结构.md) —— 一页看懂每个文件管什么
+- [上线清单](docs/上线清单.md) —— 离上线还差什么
+- [图片功能计划](docs/图片功能计划.md) —— 帖子多图功能的设计与改动清单
+- [我的问题笔记](docs/LEARNING-LOG.md) —— 学习过程中问过的问题和答案
 
-## 📎 说明
+## 说明
 
-个人项目，故意保持简单：不用框架、不堆组件，每一块都尽量让我自己讲得清楚。
+个人项目，有意保持简单：不用前端框架、不堆组件。
 
-⚠️ 一处**已知的临时方案**：前端那个站长密码（`assets/js/app.js` 里的 `admin123`）只挡君子不挡小人 —— **真正的安全在后端**：所有写接口都要令牌，在浏览器里改那个变量也改不动数据库。等前端接上 `/api/login` 之后就会删掉它。
+本地开发时 `assets/js/app.js` 里有一个占位密码 `admin123`，它只用于隐藏界面，**不构成安全边界** ——
+真正的鉴权在后端：所有写接口都要求 Bearer 令牌，改前端变量无法写入数据库。
+前端接入 `/api/login` 后，这个占位密码会被移除。
 
 © 2026 东魏轻松的芹菜
