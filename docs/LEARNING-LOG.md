@@ -129,6 +129,49 @@ GET /api/memos?userId=1   →（改成）→   GET /api/memos?userId=2
 
 每一层之间"说法"不同，所以每一步都要翻译。
 
+### 谁负责哪一段翻译
+
+| 翻译段 | 谁翻译 | 什么时候定的 | 怎么定的 |
+|---|---|---|---|
+| 数据库 ↔ Java 对象 | Hibernate / JPA | 以前（另一台电脑）| `@Column(name = "written_on")` |
+| Java 对象 ↔ JSON | Jackson | 以前（另一台电脑）| getter 名字自动推导 |
+| JSON ↔ 页面要的数据 | 我（前端）| 今天 | `postFromApi()` |
+| 页面数据 ↔ HTML | 我（前端）| 前几步 | `postHTML()` / `essayHTML()` |
+| HTML ↔ 像素 | 浏览器 | — | 内置 |
+
+### 接口的"接头点"是什么时候定的
+
+接头点 = JSON 里有哪些字段、叫什么、什么类型。
+
+它**不是专门设计的，是写后端实体类时顺手定下的**：
+
+| 接头点的内容 | 由什么决定 |
+|---|---|
+| 有哪些字段 | Java 类的字段（`Post.java` 里写了 title / body / tags / publishedAt …）|
+| 字段叫什么 | getter 的名字（`getPublishedAt()` → `publishedAt`）|
+| 字段什么类型 | Java 类型 + Jackson 规则（`LocalDate` → `"2026-09-12"`）|
+
+两边都是"顺手"定的，**谁也没对账**：
+
+    后端：写 Post.java 时定的   →  publishedAt / body / tags(字符串)
+    前端：写 postHTML() 假数据时定的 →  date / excerpt / tags(数组)
+    → 今天一对账，发现对不上，才写了 postFromApi()
+
+教训：接口清单只记了"地址 + 动词"，没记"返回什么形状"，所以对不上账。
+以后加新接口，要把**返回的字段名和类型**也记下来。
+
+接口只约定"接头点"长什么样，不管两边内部各自怎么翻译：
+
+          【后端的地盘】                        【前端的地盘】
+  MySQL ──► Java 对象 ──► JSON ═╗      ╔═ JS 对象 ──► 页面数据 ──► HTML ──► 屏幕
+         ↑            ↑          ║      ║       ↑              ↑
+   @Column(name)    getter       ╚══════╝  res.json()    postFromApi()
+     （以前定）     （以前定）     接头点（接口）        （今天定）
+                              "长这样、叫什么"
+
+以前定的是：接头点 + 后端那半段。
+今天定的是：前端这半段。
+
 ### 翻译 vs 复用（两个独立的概念）
 
 | | 翻译（适配）| 复用 |
