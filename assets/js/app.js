@@ -239,10 +239,110 @@
       });
   }
 
+  /* ---------------------- 第 3 步：「关于我」改成从数据库读 ---------------------- */
+  // 思路叫「渐进增强」：
+  //   ① 页面先用 HTML 里写好的内容显示 —— 后端没开也不会是一片空白
+  //   ② 同时去问后端要最新资料
+  //   ③ 拿到了 → 覆盖页面上的内容；没拿到 → 什么都不做，继续用旧内容
+  function setText(id, value) {
+    var el = document.getElementById(id);
+    // 注意判空：字段是空的时候，别把页面上已有的内容清成空白
+    if (el && value) el.textContent = value;
+  }
+
+  function applyProfile(p) {
+    setText('heroName', p.name);
+    setText('heroTagline', p.tagline);
+
+    // 简介里带换行（\n）。但 textContent 不会把 \n 当换行，
+    // 所以先转义（防止有人把 HTML 塞进数据库）再把 \n 换成 <br />。
+    var intro = document.getElementById('heroIntro');
+    if (intro && p.intro) intro.innerHTML = esc(p.intro).replace(/\n/g, '<br />');
+
+    // 头像：改 <img> 的 src
+    var avatar = document.getElementById('heroAvatar');
+    if (avatar && p.avatarPath) avatar.src = p.avatarPath;
+
+    // 顶部大图：CSS 里用的是 background 简写，这里只覆盖 background-image 就够
+    // （位置 / 大小 / 是否重复这些仍然沿用 CSS 里的设置）
+    var hero = document.getElementById('hero');
+    if (hero && p.heroPath) hero.style.backgroundImage = 'url("' + p.heroPath + '")';
+
+    // 顺手把浏览器标签页的标题也改成数据库里的名字
+    if (p.name) document.title = p.name + '的个人小站';
+  }
+
+  function loadProfile() {
+    fetch(API_BASE + '/api/profile')   // ① 发请求（不写就是 GET）
+      .then(function (res) {
+        // fetch 的"坑"：404 / 500 也算"成功响应"，不会自己跳进 catch，
+        // 所以必须自己检查状态码。
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();             // ② 把响应体从"文字"解析成 JS 对象
+      })
+      .then(function (profile) {
+        applyProfile(profile);         // ③ 拿到对象，填进页面
+      })
+      .catch(function (err) {
+        // 后端没开是正常情况：只在控制台留一句，页面继续用 HTML 里的内容
+        console.warn('[profile] 没拿到资料，继续用页面里写好的内容：', err);
+      });
+  }
+
+  /* ---------------------- 第 4 步：「随笔」改成从数据库读 ---------------------- */
+  // 这次接口返回的是一个【数组】（每个元素 = 一篇随笔）。
+  // 所以要先把数组"加工"成一大块 HTML 文字，再一次性塞进页面。
+  // 两个新工具：
+  //   map(...)  把一个数组"变形"成另一个数组（一篇 → 一段 HTML 文字）
+  //   join('')  把数组里的东西"粘"成一个字符串
+  function essayHTML(e) {
+    // 日期：数据库里是 "2025-04-23"，页面要显示成 "2025 · 04 · 23"
+    // String(... || '') 是为了防 null：万一是空值，也不会报错
+    var date = String(e.writtenOn || '').replace(/-/g, ' · ');
+
+    // 正文：段落之间用空行分隔 → 先按"空行"切成数组 → 每段包一层 <p> → 再粘起来
+    var paras = String(e.body || '')
+      .split(/\n\s*\n/)     // 正则：\n 换行 + \s* 可能有的空格 → 也就是"空行"
+      .map(function (p) { return '<p>' + esc(p.trim()) + '</p>'; })
+      .join('');
+
+    return '<article class="entry">' +
+      '<div class="entry__date">' + esc(date) + '</div>' +
+      '<div class="entry__body">' + paras + '</div>' +
+    '</article>';
+  }
+
+  function loadEssays() {
+    fetch(API_BASE + '/api/essays')
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (list) {
+        var box = document.getElementById('essayList');
+        if (!box) return;
+
+        // 一篇都没有 → 给一句人话，而不是留一片空白
+        if (!list.length) {
+          box.innerHTML = '<div class="empty"><span class="empty__mark">♡</span>还没有随笔</div>';
+          return;
+        }
+
+        // innerHTML = 把里面原本的 HTML 全部换掉
+        box.innerHTML = list.map(essayHTML).join('');
+      })
+      .catch(function (err) {
+        // 请求失败时【不覆盖】页面 —— 让 HTML 里写好的旧内容继续顶着
+        console.warn('[essays] 没拿到随笔，继续用页面里写好的内容：', err);
+      });
+  }
+
   /* ---------------------- 启动 ---------------------- */
   mountList('postListHome', 'pagerHome', 'home');
   mountList('postListAll', 'pagerAll', 'all');
   checkBackend();
+  loadProfile();
+  loadEssays();
 
   // 支持用地址栏的 #home / #posts / #hobby 直接进来
   var hash = (location.hash || '').replace('#', '');
