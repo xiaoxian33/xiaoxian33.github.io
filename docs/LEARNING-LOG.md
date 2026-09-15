@@ -85,20 +85,65 @@
 
 第一节那条链讲的是「**数据的形态怎么变**」；门卫管的是另一件事：「**谁被允许**」。
 
-    ① 数据库 → ② 后端 → ③ JSON → ④ 前端 → ⑤ 屏幕
-                  ▲
-                  │  🚪 门卫守在这里（所有 /api/admin/** 的请求）
-                  │
-                  │  WebConfig             → 指定守哪条线
-                  │  OwnerAuthInterceptor  → 检查每个请求
-                  │  OwnerAuthService      → 发令牌 / 验令牌
-                  │  AuthController        → 登录窗口
+#### 1. 门口分两半：门外 / 门内
+
+    门 外（不用令牌）                      门 内（必须带令牌）
+    ────────────────────                  ──────────────────────────
+    输密码 → POST /api/login              PUT    /api/admin/profile
+             （在这儿领令牌）              POST   /api/admin/posts
+                                         DELETE /api/admin/posts/3
+    看内容 → GET /api/essays              GET    /api/admin/whoami
+             GET /api/profile
+             GET /api/posts
+
+> ⚠️ **登录必须在门外** —— 否则就成了"没令牌就不能登录、不登录就拿不到令牌"的死循环。
+
+#### 2. 先登录拿令牌，之后一直带着
+
+    你输密码
+      │
+      ▼
+    POST /api/login           ← 不带令牌（因为还没有）
+      │   后端比对哈希
+      ├── 不对 → 401「密码不对」
+      └── 对   → 发一张令牌 🎫
+      │
+      ▼
+    前端存进 localStorage      ← 浏览器的小抽屉，关了页面还在
+      │
+      ▼
+    之后每次"写"都带着它：
+      PUT /api/admin/profile
+      Authorization: Bearer 2afcbd58...
+      │
+      ▼
+    🚪 门卫检查令牌 → 有效放行 / 无效 401
+
+#### 3. 一条规则管住全部门内接口
+
+`WebConfig` 里只有一行：
+
+    .addPathPatterns("/api/admin/**")
+
+→ 以后新接口只要网址以 `/api/admin/` 开头，**自动被守**，门卫一行都不用改。
+→ 所以只要记住一条命名约定：**想被保护的接口，网址就写成 `/api/admin/xxx`。**
+
+#### 4. 门卫四件套
+
+    WebConfig             → 排班表：指定守哪条线（/api/admin/**）
+    OwnerAuthInterceptor  → 门卫本人：检查每个请求
+    OwnerAuthService      → 大脑：发令牌 / 验令牌
+    AuthController        → 发放处：登录 / 退出 / whoami
+
+#### 5. 两条线互不干扰
 
 | | 翻译链 | 门卫 / 令牌 |
 |---|---|---|
 | 管什么 | 数据长什么样（形态怎么变）| 谁被允许做这件事 |
 | 方向 | 横向：从数据库一路到屏幕 | 纵向：横切在某一个点上 |
 | 关心内容吗 | 关心（要改名、要加工）| 完全不关心（只看令牌）|
+| 加一个新接口 | 延长一段 | **不用改**（只要挂在 `/api/admin/` 下）|
+| 换令牌方案 | **不受影响** | 要改 |
 
 > **翻译管「怎么搬」，门卫管「准不准搬」。**
 
