@@ -170,10 +170,10 @@
   }
 
   /* ---------------------- 隐藏入口：↑ + ← 同时按住 ---------------------- */
-  // ⚠️ 说清楚：这只是「门帘」，不是锁。
-  //    写在网页里的密码，任何人查看源码都能看到 —— 所以现在里面没有任何真数据。
-  //    等接上后端，密码会放到服务器上校验，那时才算真的锁。
-  var ADMIN_PASSWORD = 'admin123';   // ← 临时密码，改这一行就能换
+  // ✅ 现在这里是【真的锁】了：
+  //    密码不再写在这个文件里，而是发给后端校验；
+  //    后端说对，才发一张「令牌」回来，前端存起来。
+  //    （改这个文件也骗不过后端 —— 因为令牌只有后端能发。）
 
   var gate = document.getElementById('gate');
   var gateBox = document.getElementById('gateBox');
@@ -204,15 +204,39 @@
     document.body.classList.remove('owner-mode');
     if (ownerPanel) ownerPanel.hidden = true;
     if (rootBadge) rootBadge.hidden = true;
+    logout();      // ← 新增：顺便通知后端把这张令牌作废
   }
 
+  // 点"确认"：把密码【发给后端】，让后端说了算
   function submitPassword() {
-    if ((gateInput.value || '').trim() === ADMIN_PASSWORD) { enterOwnerMode(); return; }
-    // 失败时什么都不说，只是抖一下（陌生人看了也以为是个坏掉的小弹窗）
-    gateBox.classList.add('is-shake');
-    setTimeout(function () { gateBox.classList.remove('is-shake'); }, 420);
-    gateInput.value = '';
-    gateInput.focus();
+    var pwd = (gateInput.value || '').trim();
+    if (!pwd) return;
+
+    setGateHint('正在验证…');
+    if (gateOk) gateOk.disabled = true;     // 验证期间先别让他狂点
+
+    loginWith(pwd)
+      .then(function () {
+        // 后端说密码对，还给了令牌 → loginWith 已经把它存好了
+        setGateHint('回车确认 · Esc 取消');
+        if (gateOk) gateOk.disabled = false;
+        enterOwnerMode();
+      })
+      .catch(function (err) {
+        setGateHint('回车确认 · Esc 取消');
+        if (gateOk) gateOk.disabled = false;
+        // 失败时什么都不说，只是抖一下（陌生人看了也以为是个坏掉的小弹窗）
+        gateBox.classList.add('is-shake');
+        setTimeout(function () { gateBox.classList.remove('is-shake'); }, 420);
+        gateInput.value = '';
+        gateInput.focus();
+        console.warn('[login] 验证没通过：', err);
+      });
+  }
+
+  function setGateHint(text) {
+    var hint = document.getElementById('gateHint');
+    if (hint) hint.textContent = text;
   }
 
   document.addEventListener('keydown', function (e) {
@@ -274,6 +298,69 @@
         clearTimeout(timer);
         setApiStatus('后端未连接 — 这是正常的，你现在没开本地后端', false);
       });
+  }
+
+  /* ---------------------- 第 6 步：真的登录（拿令牌） ---------------------- */
+  // 令牌存在浏览器的 localStorage 里 —— 相当于浏览器内部的一个小抽屉：
+  // 关掉页面再打开它还在，所以"登录一次能用 12 小时"。
+  // ⚠️ 用 try/catch 包着：某些浏览器在隐私模式下会禁止 localStorage，会直接报错。
+
+  var TOKEN_KEY = 'site.owner.token';
+
+  function saveToken(t) {
+    try { localStorage.setItem(TOKEN_KEY, t); } catch (e) { console.warn('存令牌失败：', e); }
+  }
+
+  function readToken() {
+    try { return localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; }
+  }
+
+  function clearToken() {
+    try { localStorage.removeItem(TOKEN_KEY); } catch (e) { /* 忽略 */ }
+  }
+
+  // 把密码发给后端；成功 = 后端回 200 + 一张令牌
+  function loginWith(password) {
+    return fetch(API_BASE + '/api/login', {
+      method: 'POST',                                     // ← 这次不是 GET 了，是 POST
+      headers: { 'Content-Type': 'application/json' },    // ← 告诉后端"我发的是 JSON"
+      body: JSON.stringify({ password: password })        // ← 把对象变成 JSON 文字
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);   // 密码错 → 401 → 直接跳去 catch
+        return res.json();
+      })
+      .then(function (data) {
+        saveToken(data.token);                            // 令牌到手，先存起来
+      });
+  }
+
+  // 退出：让后端把这张令牌作废，同时清掉本地那份
+  function logout() {
+    var token = readToken();
+    clearToken();                                          // 本地立刻清掉（不管后端成不成）
+    if (!token) return Promise.resolve();
+
+    return fetch(API_BASE + '/api/logout', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token }      // ← 令牌放在【请求头】里
+    }).catch(function () { /* 后端没开也无所谓，本地已经清掉了 */ });
+  }
+
+  // 打开页面时：本地如果还存着令牌，就让后端验一下；有效就直接进编辑模式
+  function restoreLogin() {
+    var token = readToken();
+    if (!token) return;
+
+    fetch(API_BASE + '/api/admin/whoami', {                 // 这个接口在门卫后面
+      headers: { 'Authorization': 'Bearer ' + token }
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status); // 过期/无效 → 401
+        return res.json();
+      })
+      .then(function () { enterOwnerMode(); })              // 门卫放行了 → 直接进编辑模式
+      .catch(function () { clearToken(); });                // 没通过 → 清掉，当访客
   }
 
   /* ---------------------- 第 3 步：「关于我」改成从数据库读 ---------------------- */
@@ -400,6 +487,7 @@
   loadProfile();
   loadEssays();
   loadPosts();
+  restoreLogin();     // 本地还存着有效令牌的话，直接回到编辑模式
 
   // 支持用地址栏的 #home / #posts / #hobby 直接进来
   var hash = (location.hash || '').replace('#', '');
