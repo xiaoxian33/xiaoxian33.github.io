@@ -466,9 +466,30 @@ a.btn-sm { display: inline-block; text-decoration: none; }
   background: linear-gradient(180deg, #1c1122, #140b18);
   border: 1px solid rgba(255, 95, 162, .5); border-radius: 16px;
   box-shadow: 0 18px 44px rgba(0, 0, 0, .6), 0 0 34px rgba(255, 95, 162, .18);
+  /* 面板里现在有表单，会长高 —— 超过屏幕就让面板自己滚，别把"保存"按钮切掉 */
+  max-height: min(84vh, 700px); overflow-y: auto;
 }
 .owner__title { font-family: var(--serif); color: var(--pink-2); letter-spacing: .08em; margin-bottom: 10px; }
-.owner__list { list-style: none; margin: 0 0 10px; padding: 0; color: var(--text); font-size: 13.5px; }
-.owner__list li { padding: 3px 0; }
-.owner__note { color: var(--muted); font-size: 12px; line-height: 1.9; margin: 0 0 12px; }
+/* ---------------------- 编辑面板里的表单（发帖） ---------------------- */
+/* 配色沿用全站变量：输入框底色和 .gate__input 一样，保证风格统一 */
+.form { margin: 12px 0 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+.form__title { font-family: var(--serif); color: var(--pink-2); font-size: 14px; letter-spacing: .06em; margin: 0 0 12px; }
+
+.field { display: block; margin: 0 0 11px; }
+.field__label { display: block; color: var(--muted); font-size: 12px; letter-spacing: .04em; margin-bottom: 4px; }
+.field__req { color: var(--pink); font-size: 11px; margin-left: 6px; }
+.field__opt { color: var(--faint); font-size: 11px; margin-left: 6px; }
+
+.field__input {
+  width: 100%; font: inherit; font-size: 13px;
+  color: var(--text); background: rgba(0, 0, 0, .35);
+  border: 1px solid var(--line-2); border-radius: 10px; padding: 8px 11px;
+  color-scheme: dark;   /* 让 type=date 的日历图标在深色底上也是浅色的 */
+}
+.field__input:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 3px rgba(255, 95, 162, .15); }
+.field__input::placeholder { color: var(--faint); }
+.field__input--area { resize: vertical; min-height: 96px; line-height: 1.75; }
+
+.form__actions { display: flex; gap: 8px; margin: 12px 0 0; }
+.form__note { color: var(--faint); font-size: 12px; line-height: 1.8; margin: 10px 0 0; }
 

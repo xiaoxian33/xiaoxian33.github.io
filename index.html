@@ -420,13 +420,40 @@
   <!-- ==================== 进入编辑模式后才出现 ==================== -->
   <div class="root-badge" id="rootBadge" hidden>● ROOT</div>
   <aside class="owner" id="ownerPanel" hidden>
-    <div class="owner__title">👑 编辑模式（试做版）</div>
-    <ul class="owner__list">
-      <li>✏️ 修改简介</li>
-      <li>🖼️ 换头像 / 换背景图</li>
-      <li>✍️ 发帖</li>
-    </ul>
-    <p class="owner__note">这三样现在<b>还不能保存</b>。等接上后端（Spring Boot + MySQL），你就能真的在这里改，改完别人也看得到。</p>
+    <div class="owner__title">👑 编辑模式</div>
+
+    <!-- ---------- 发帖（第 3 步：先把方框摆出来）---------- -->
+    <section class="form" id="postForm">
+      <h3 class="form__title">✍️ 发一条帖子</h3>
+
+      <label class="field" for="postTitle">
+        <span class="field__label">标题<span class="field__opt">（可留空）</span></span>
+        <input class="field__input" type="text" id="postTitle" maxlength="200" placeholder="今天学了什么？" />
+      </label>
+
+      <label class="field" for="postBody">
+        <span class="field__label">正文<span class="field__req">必填</span></span>
+        <textarea class="field__input field__input--area" id="postBody" rows="6" placeholder="随便写点什么……"></textarea>
+      </label>
+
+      <label class="field" for="postTags">
+        <span class="field__label">标签<span class="field__opt">（用逗号隔开）</span></span>
+        <input class="field__input" type="text" id="postTags" maxlength="200" placeholder="学习,Spring,前端" />
+      </label>
+
+      <label class="field" for="postPublishedAt">
+        <span class="field__label">日期<span class="field__opt">（留空 = 今天）</span></span>
+        <input class="field__input" type="date" id="postPublishedAt" />
+      </label>
+
+      <div class="form__actions">
+        <button type="button" class="btn-sm" id="postSave">保存</button>
+        <button type="button" class="btn-sm btn-sm--ghost" id="postReset">清空</button>
+      </div>
+
+      <p class="form__note">🕓 保存功能下一步（第 4 步）才接上，现在只是把方框摆好。</p>
+    </section>
+
     <button type="button" class="btn-sm btn-sm--ghost" id="ownerExit">退出编辑模式</button>
   </aside>
 
