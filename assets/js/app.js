@@ -17,6 +17,9 @@
   // 下面的渲染 / 分页逻辑完全不用改。
   var POSTS = [];
 
+  // 最近一次从后端拿到的资料（"我的资料"表单要用它回填，避免空表单把资料清空）
+  var currentProfile = null;
+
   var PAGE_SIZE = 4;
 
   /* ---------------------- 小工具 ---------------------- */
@@ -228,6 +231,8 @@
     if (editorBack) editorBack.hidden = !name;
     if (editorTitle) editorTitle.textContent = name ? EDITOR_SCREENS[name].title : '你要编辑哪一部分？';
 
+    if (name === 'profile') fillProfileForm();     // 资料表单要回填现有内容
+
     if (name) {                                   // 进表单时，把光标放进第一个输入框
       var first = EDITOR_SCREENS[name].el.querySelector('input, textarea');
       if (first) first.focus();
@@ -358,12 +363,106 @@
   if (postResetBtn) postResetBtn.addEventListener('click', function () { clearForm('editorPost'); });
   if (essayResetBtn) essayResetBtn.addEventListener('click', function () { clearForm('editorEssay'); });
 
-  // 「保存」：这一步先只给一句提示（下一步才真的发给后端）
-  var notWiredYet = ['postSave', 'essaySave', 'profileSave'];
-  for (var n = 0; n < notWiredYet.length; n += 1) {
-    var saveBtn = document.getElementById(notWiredYet[n]);
-    if (saveBtn) saveBtn.addEventListener('click', function () { showToast('保存还没接上后端 —— 下一步就做它'); });
+  /* ---------------------- ③ 「保存」按钮：真的发给后端 ---------------------- */
+  // 每个保存按钮都是同一套路：读表单 → 检查 → 发请求 → 成功后刷新 + 提示。
+  // 结果怎么对应（和 docs/API.md 一致）：
+  //   200 → 成功     401 → 登录过期（authFetch 里统一处理）
+  //   404 → 要改的东西不在了      500 → 数据库拒绝（比如正文为空）
+
+  function setBusy(btn, busy, normalText) {
+    if (!btn) return;
+    btn.disabled = busy;
+    btn.textContent = busy ? '保存中…' : normalText;
   }
+
+  function saveNewPost() {
+    var body = document.getElementById('postBody').value.trim();
+    if (!body) { showToast('正文不能为空', true); return; }      // 前端先挡一道（后端还会再挡）
+
+    var data = {
+      title: document.getElementById('postTitle').value.trim(),
+      body: body,
+      tags: document.getElementById('postTags').value.trim()
+    };
+    var date = document.getElementById('postPublishedAt').value;
+    if (date) data.publishedAt = date;      // 不填就【不发】这个字段 → 后端自动用今天
+
+    var btn = document.getElementById('postSave');
+    setBusy(btn, true);
+    apiCreatePost(data)
+      .then(function () {
+        showToast('已发布 ✓');
+        clearForm('editorPost');
+        closeEditor();
+        loadPosts();                        // 重新拉一遍数据 → 页面上立刻出现这一条
+      })
+      .catch(function (err) { showToast('没保存成功：' + err.message, true); })
+      .then(function () { setBusy(btn, false); });
+  }
+
+  function saveNewEssay() {
+    var body = document.getElementById('essayBody').value.trim();
+    if (!body) { showToast('正文不能为空', true); return; }
+
+    var data = {
+      title: document.getElementById('essayTitle').value.trim(),
+      body: body
+    };
+    var date = document.getElementById('essayWrittenOn').value;
+    if (date) data.writtenOn = date;
+
+    var btn = document.getElementById('essaySave');
+    setBusy(btn, true);
+    apiCreateEssay(data)
+      .then(function () {
+        showToast('已保存 ✓');
+        clearForm('editorEssay');
+        closeEditor();
+        loadEssays();
+      })
+      .catch(function (err) { showToast('没保存成功：' + err.message, true); })
+      .then(function () { setBusy(btn, false); });
+  }
+
+  function saveProfileForm() {
+    // 资料是"改现有的东西"：必须先有现有资料，否则空表单会把你的资料清空
+    if (!currentProfile) { showToast('还没拿到现有资料，刷新页面再试', true); return; }
+
+    var patch = {
+      name:    document.getElementById('profileName').value.trim(),
+      tagline: document.getElementById('profileTagline').value.trim(),
+      intro:   document.getElementById('profileIntro').value.trim(),
+      github:  document.getElementById('profileGithub').value.trim()
+    };
+
+    var btn = document.getElementById('profileSave');
+    setBusy(btn, true);
+    apiSaveProfile(patch)
+      .then(function () {
+        showToast('资料已更新 ✓');
+        closeEditor();
+        loadProfile();                      // 首页的名字 / 简介立刻变
+      })
+      .catch(function (err) { showToast('没保存成功：' + err.message, true); })
+      .then(function () { setBusy(btn, false); });
+  }
+
+  // 打开"我的资料"时，把当前资料填进输入框（不然你不知道现在写着什么）
+  function fillProfileForm() {
+    if (!currentProfile) return;
+    var set = function (id, val) { var el = document.getElementById(id); if (el) el.value = val || ''; };
+    set('profileName', currentProfile.name);
+    set('profileTagline', currentProfile.tagline);
+    set('profileIntro', currentProfile.intro);
+    set('profileGithub', currentProfile.github);
+  }
+
+  var postSaveBtn = document.getElementById('postSave');
+  var essaySaveBtn = document.getElementById('essaySave');
+  var profileSaveBtn = document.getElementById('profileSave');
+  if (postSaveBtn) postSaveBtn.addEventListener('click', saveNewPost);
+  if (essaySaveBtn) essaySaveBtn.addEventListener('click', saveNewEssay);
+  if (profileSaveBtn) profileSaveBtn.addEventListener('click', saveProfileForm);
 
   /* ---------------------- 第 2 步：让网页去调后端 ---------------------- */
   // 后端地址：现在它跑在你自己的电脑上，所以是 localhost。
@@ -420,6 +519,48 @@
   function clearToken() {
     try { localStorage.removeItem(TOKEN_KEY); } catch (e) { /* 忽略 */ }
   }
+
+  /* ---------------------- ① 写入管道：所有"保存"都从这里出去 ---------------------- */
+  // 为什么要单独包一层？三个理由：
+  //   1. 每个写接口都必须带令牌 —— 在这里写一次，所有功能都不用重复写
+  //   2. 令牌会过期（后端重启也会失效）→ 后端回 401 —— 在这里统一处理
+  //   3. 统一把 JS 对象变成 JSON 文字、统一检查状态码
+  //   （地址和字段名全部来自 docs/API.md —— 那份契约就是给这里用的）
+
+  function authFetch(path, options) {
+    options = options || {};
+    options.headers = options.headers || {};
+    options.headers['Authorization'] = 'Bearer ' + readToken();
+    if (options.body) options.headers['Content-Type'] = 'application/json';
+
+    return fetch(API_BASE + path, options).then(function (res) {
+      if (res.status === 401) {          // 令牌无效 / 过期
+        onAuthExpired();
+        throw new Error('登录已过期');
+      }
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    });
+  }
+
+  // 令牌失效时的统一动作：清掉本地令牌、退回访客模式，但【不】白屏
+  function onAuthExpired() {
+    clearToken();
+    closeEditor();
+    document.body.classList.remove('owner-mode');
+    if (editorFab) editorFab.hidden = true;
+    if (rootBadge) rootBadge.hidden = true;
+    showToast('登录已过期，请重新登录（↑ + ←）', true);
+  }
+
+  /* ---------------------- ② 七个写动作（一个动作 = 一次 authFetch）---------------------- */
+  function apiCreatePost(data)     { return authFetch('/api/admin/posts',         { method: 'POST',   body: JSON.stringify(data) }); }
+  function apiUpdatePost(id, data) { return authFetch('/api/admin/posts/' + id,   { method: 'PUT',    body: JSON.stringify(data) }); }
+  function apiDeletePost(id)       { return authFetch('/api/admin/posts/' + id,   { method: 'DELETE' }); }
+  function apiCreateEssay(data)    { return authFetch('/api/admin/essays',        { method: 'POST',   body: JSON.stringify(data) }); }
+  function apiUpdateEssay(id, data){ return authFetch('/api/admin/essays/' + id,  { method: 'PUT',    body: JSON.stringify(data) }); }
+  function apiDeleteEssay(id)      { return authFetch('/api/admin/essays/' + id,  { method: 'DELETE' }); }
+  function apiSaveProfile(patch)   { return authFetch('/api/admin/profile',       { method: 'PUT',    body: JSON.stringify(patch) }); }
 
   // 把密码发给后端；成功 = 后端回 200 + 一张令牌
   function loginWith(password) {
@@ -507,6 +648,7 @@
         return res.json();             // ② 把响应体从"文字"解析成 JS 对象
       })
       .then(function (profile) {
+        currentProfile = profile;      // 记下来，"我的资料"表单要拿它回填
         applyProfile(profile);         // ③ 拿到对象，填进页面
       })
       .catch(function (err) {

@@ -10,7 +10,7 @@
   <!-- ⚠️ 每次改了 css / js，就把 ?v= 后面这个版本号改一下（改日期即可）
        原因：GitHub Pages 会给这些文件设缓存（约 10 分钟）。带上版本号，
        浏览器才会去拿新文件，否则会出现"HTML 是新的、app.js 是旧的"这种错配。 -->
-  <link rel="stylesheet" href="assets/css/style.css?v=20260917a" />
+  <link rel="stylesheet" href="assets/css/style.css?v=20260917b" />
 </head>
 <body>
 
@@ -459,11 +459,11 @@
             <button class="picker__item" type="button" disabled>
               <span class="picker__icon">🧩</span>
               <span class="picker__name">做过的项目</span>
-              <span class="picker__hint">下一阶段做（要先建表）</span>
+              <span class="picker__hint">下一阶段做（只放简介 + GitHub 链接）</span>
             </button>
           </div>
 
-          <p class="form__note">🖼️ 图片上传也在后面的阶段 —— 它要挂在"发帖 / 项目"上，所以排在它们后面。</p>
+          <p class="form__note">🖼️ 图片排在下个阶段：发帖和随笔要能配图；「做过的项目」不需要图片，给个链接就够。</p>
           <button class="btn-sm btn-sm--ghost" id="ownerExit" type="button">🚪 退出编辑模式</button>
         </div>
 
@@ -510,6 +510,7 @@
             <button type="button" class="btn-sm" id="essaySave">保存</button>
             <button type="button" class="btn-sm btn-sm--ghost" id="essayReset">清空</button>
           </div>
+          <p class="form__note">🖼️ 图片：等图片上传做好后，这里也会多一个「选择图片」按钮。</p>
         </section>
 
         <!-- ---------- 视图 4：我的资料 ---------- -->
@@ -543,6 +544,6 @@
   <!-- 保存结果的提示条 -->
   <div class="toast" id="toast" hidden></div>
 
-  <script src="assets/js/app.js?v=20260917a"></script>
+  <script src="assets/js/app.js?v=20260917b"></script>
 </body>
 </html>
