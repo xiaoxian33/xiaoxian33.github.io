@@ -460,16 +460,74 @@ a.btn-sm { display: inline-block; text-decoration: none; }
   text-shadow: 0 1px 3px rgba(0, 0, 0, .85);
   backdrop-filter: blur(2px);
 }
-.owner {
-  position: fixed; right: 20px; bottom: 20px; z-index: 85;
-  width: min(300px, 86vw); padding: 16px 18px;
-  background: linear-gradient(180deg, #1c1122, #140b18);
-  border: 1px solid rgba(255, 95, 162, .5); border-radius: 16px;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, .6), 0 0 34px rgba(255, 95, 162, .18);
-  /* 面板里现在有表单，会长高 —— 超过屏幕就让面板自己滚，别把"保存"按钮切掉 */
-  max-height: min(84vh, 700px); overflow-y: auto;
+/* ---------------------- 编辑模式的悬浮按钮（右下角）---------------------- */
+.fab {
+  position: fixed; right: 20px; bottom: 20px; z-index: 86;
+  appearance: none; cursor: pointer; font: inherit; font-size: 14px;
+  padding: 10px 18px; border-radius: 999px;
+  color: #200c17; background: var(--pink); border: 1px solid var(--pink);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, .5), 0 0 26px rgba(255, 95, 162, .35);
 }
-.owner__title { font-family: var(--serif); color: var(--pink-2); letter-spacing: .08em; margin-bottom: 10px; }
+.fab:hover { filter: brightness(1.08); }
+
+/* ---------------------- 编辑器弹窗 ---------------------- */
+/* 和站长密码框（.gate）同一套视觉：半透明遮罩 + 居中卡片 */
+.overlay {
+  position: fixed; inset: 0; z-index: 88;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(8, 5, 10, .72);
+  backdrop-filter: blur(3px);
+  padding: 20px;
+}
+.modal {
+  width: min(460px, 92vw); max-height: min(86vh, 780px);
+  display: flex; flex-direction: column;
+  background: linear-gradient(180deg, #1a1020, #120a16);
+  border: 1px solid var(--line-2); border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .6), 0 0 40px rgba(255, 95, 162, .18);
+}
+.modal__head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 18px 12px; border-bottom: 1px dashed var(--line);
+}
+.modal__title { flex: 1; font-family: var(--serif); color: var(--pink-2); font-size: 15px; letter-spacing: .06em; }
+.modal__back, .modal__close {
+  appearance: none; cursor: pointer; font: inherit; font-size: 13px; line-height: 1;
+  padding: 5px 11px; border-radius: 999px;
+  color: var(--muted); background: none; border: 1px solid var(--line-2);
+}
+.modal__back:hover, .modal__close:hover { color: var(--pink-2); border-color: var(--pink); }
+.modal__body { padding: 16px 18px 18px; overflow-y: auto; }
+
+/* ---------------------- 弹窗第 1 屏：选择"改什么" ---------------------- */
+.picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.picker__item {
+  appearance: none; cursor: pointer; font: inherit; text-align: left;
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 12px 14px; border-radius: 12px;
+  color: var(--text); background: rgba(0, 0, 0, .3); border: 1px solid var(--line-2);
+}
+.picker__item:hover:not(:disabled) { border-color: var(--pink); background: var(--pink-soft); }
+/* 还没做的入口（比如"做过的项目"）—— 灰掉，看得见但点不动 */
+.picker__item:disabled { opacity: .45; cursor: not-allowed; }
+.picker__icon { font-size: 18px; line-height: 1.4; }
+.picker__name { font-size: 14px; }
+.picker__hint { color: var(--faint); font-size: 11.5px; line-height: 1.6; }
+
+/* ---------------------- 保存结果的提示条 ---------------------- */
+.toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+  z-index: 95; max-width: 86vw;
+  padding: 10px 18px; border-radius: 999px; font-size: 13px;
+  color: #200c17; background: var(--pink-2);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, .55);
+}
+.toast--bad { color: #fff0f6; background: #a8214f; }
+
+/* 窄屏：选择题改成一行一个，别挤成两小条 */
+@media (max-width: 480px) {
+  .picker { grid-template-columns: 1fr; }
+}
 /* ---------------------- 编辑面板里的表单（发帖） ---------------------- */
 /* 配色沿用全站变量：输入框底色和 .gate__input 一样，保证风格统一 */
 .form { margin: 12px 0 14px; padding-top: 12px; border-top: 1px dashed var(--line); }

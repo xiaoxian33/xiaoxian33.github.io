@@ -419,43 +419,126 @@
 
   <!-- ==================== 进入编辑模式后才出现 ==================== -->
   <div class="root-badge" id="rootBadge" hidden>● ROOT</div>
-  <aside class="owner" id="ownerPanel" hidden>
-    <div class="owner__title">👑 编辑模式</div>
 
-    <!-- ---------- 发帖（第 3 步：先把方框摆出来）---------- -->
-    <section class="form" id="postForm">
-      <h3 class="form__title">✍️ 发一条帖子</h3>
+  <!-- 「编辑」悬浮按钮：位置和 ROOT 徽章一样，只有编辑模式才出现 -->
+  <button class="fab" id="editorFab" type="button" hidden>✏️ 编辑</button>
 
-      <label class="field" for="postTitle">
-        <span class="field__label">标题<span class="field__opt">（可留空）</span></span>
-        <input class="field__input" type="text" id="postTitle" maxlength="200" placeholder="今天学了什么？" />
-      </label>
+  <!-- ==================== 编辑器弹窗（在任意页面都能叫出来）==================== -->
+  <div class="overlay" id="editor" hidden>
+    <div class="modal" id="editorBox">
 
-      <label class="field" for="postBody">
-        <span class="field__label">正文<span class="field__req">必填</span></span>
-        <textarea class="field__input field__input--area" id="postBody" rows="6" placeholder="随便写点什么……"></textarea>
-      </label>
-
-      <label class="field" for="postTags">
-        <span class="field__label">标签<span class="field__opt">（用逗号隔开）</span></span>
-        <input class="field__input" type="text" id="postTags" maxlength="200" placeholder="学习,Spring,前端" />
-      </label>
-
-      <label class="field" for="postPublishedAt">
-        <span class="field__label">日期<span class="field__opt">（留空 = 今天）</span></span>
-        <input class="field__input" type="date" id="postPublishedAt" />
-      </label>
-
-      <div class="form__actions">
-        <button type="button" class="btn-sm" id="postSave">保存</button>
-        <button type="button" class="btn-sm btn-sm--ghost" id="postReset">清空</button>
+      <div class="modal__head">
+        <button class="modal__back" id="editorBack" type="button" hidden>← 返回</button>
+        <span class="modal__title" id="editorTitle">你要编辑哪一部分？</span>
+        <button class="modal__close" id="editorClose" type="button" aria-label="关闭">✕</button>
       </div>
 
-      <p class="form__note">🕓 保存功能下一步（第 4 步）才接上，现在只是把方框摆好。</p>
-    </section>
+      <div class="modal__body">
 
-    <button type="button" class="btn-sm btn-sm--ghost" id="ownerExit">退出编辑模式</button>
-  </aside>
+        <!-- ---------- 视图 1：先选"改什么" ---------- -->
+        <div id="editorPick">
+          <div class="picker">
+            <button class="picker__item" type="button" data-editor="post">
+              <span class="picker__icon">📝</span>
+              <span class="picker__name">发帖</span>
+              <span class="picker__hint">写一篇学习记录</span>
+            </button>
+            <button class="picker__item" type="button" data-editor="essay">
+              <span class="picker__icon">✒️</span>
+              <span class="picker__name">随笔</span>
+              <span class="picker__hint">补一段想说的话</span>
+            </button>
+            <button class="picker__item" type="button" data-editor="profile">
+              <span class="picker__icon">👤</span>
+              <span class="picker__name">我的资料</span>
+              <span class="picker__hint">名字 / 简介 / 链接</span>
+            </button>
+            <button class="picker__item" type="button" disabled>
+              <span class="picker__icon">🧩</span>
+              <span class="picker__name">做过的项目</span>
+              <span class="picker__hint">下一阶段做（要先建表）</span>
+            </button>
+          </div>
+
+          <p class="form__note">🖼️ 图片上传也在后面的阶段 —— 它要挂在"发帖 / 项目"上，所以排在它们后面。</p>
+          <button class="btn-sm btn-sm--ghost" id="ownerExit" type="button">🚪 退出编辑模式</button>
+        </div>
+
+        <!-- ---------- 视图 2：发帖 ---------- -->
+        <section class="form" id="editorPost" hidden>
+          <label class="field" for="postTitle">
+            <span class="field__label">标题<span class="field__opt">（可留空）</span></span>
+            <input class="field__input" type="text" id="postTitle" maxlength="200" placeholder="今天学了什么？" />
+          </label>
+          <label class="field" for="postBody">
+            <span class="field__label">正文<span class="field__req">必填</span></span>
+            <textarea class="field__input field__input--area" id="postBody" rows="7" placeholder="随便写点什么……"></textarea>
+          </label>
+          <label class="field" for="postTags">
+            <span class="field__label">标签<span class="field__opt">（用逗号隔开）</span></span>
+            <input class="field__input" type="text" id="postTags" maxlength="200" placeholder="学习,Spring,前端" />
+          </label>
+          <label class="field" for="postPublishedAt">
+            <span class="field__label">日期<span class="field__opt">（留空 = 今天）</span></span>
+            <input class="field__input" type="date" id="postPublishedAt" />
+          </label>
+          <div class="form__actions">
+            <button type="button" class="btn-sm" id="postSave">保存</button>
+            <button type="button" class="btn-sm btn-sm--ghost" id="postReset">清空</button>
+          </div>
+          <p class="form__note">🖼️ 图片：等图片上传做好后，这里会多一个「选择图片」按钮。</p>
+        </section>
+
+        <!-- ---------- 视图 3：随笔 ---------- -->
+        <section class="form" id="editorEssay" hidden>
+          <label class="field" for="essayWrittenOn">
+            <span class="field__label">日期<span class="field__opt">（留空 = 今天）</span></span>
+            <input class="field__input" type="date" id="essayWrittenOn" />
+          </label>
+          <label class="field" for="essayTitle">
+            <span class="field__label">标题<span class="field__opt">（可留空）</span></span>
+            <input class="field__input" type="text" id="essayTitle" maxlength="120" placeholder="可以没有标题" />
+          </label>
+          <label class="field" for="essayBody">
+            <span class="field__label">正文<span class="field__req">必填</span></span>
+            <textarea class="field__input field__input--area" id="essayBody" rows="8" placeholder="段落之间空一行，页面上就会分段"></textarea>
+          </label>
+          <div class="form__actions">
+            <button type="button" class="btn-sm" id="essaySave">保存</button>
+            <button type="button" class="btn-sm btn-sm--ghost" id="essayReset">清空</button>
+          </div>
+        </section>
+
+        <!-- ---------- 视图 4：我的资料 ---------- -->
+        <section class="form" id="editorProfile" hidden>
+          <label class="field" for="profileName">
+            <span class="field__label">名字<span class="field__opt">（浏览器标题也用它）</span></span>
+            <input class="field__input" type="text" id="profileName" maxlength="80" placeholder="东魏轻松的芹菜" />
+          </label>
+          <label class="field" for="profileTagline">
+            <span class="field__label">一句话</span>
+            <input class="field__input" type="text" id="profileTagline" maxlength="200" placeholder="头像下面那句" />
+          </label>
+          <label class="field" for="profileIntro">
+            <span class="field__label">简介</span>
+            <textarea class="field__input field__input--area" id="profileIntro" rows="6" placeholder="可以多行，回车换行"></textarea>
+          </label>
+          <label class="field" for="profileGithub">
+            <span class="field__label">GitHub</span>
+            <input class="field__input" type="text" id="profileGithub" maxlength="300" placeholder="https://github.com/xiaoxian33" />
+          </label>
+          <div class="form__actions">
+            <button type="button" class="btn-sm" id="profileSave">保存</button>
+          </div>
+          <p class="form__note">🖼️ 头像 / 背景图：等图片上传做好后再加在这里。</p>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 保存结果的提示条 -->
+  <div class="toast" id="toast" hidden></div>
 
   <script src="assets/js/app.js"></script>
 </body>

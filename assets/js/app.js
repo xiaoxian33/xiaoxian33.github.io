@@ -178,7 +178,6 @@
   var gate = document.getElementById('gate');
   var gateBox = document.getElementById('gateBox');
   var gateInput = document.getElementById('gateInput');
-  var ownerPanel = document.getElementById('ownerPanel');
   var rootBadge = document.getElementById('rootBadge');
   var heldKeys = Object.create(null);
 
@@ -193,18 +192,74 @@
     if (gate) gate.hidden = true;
   }
 
+  /* ---------------------- 编辑器弹窗（任何页面都能叫出来）---------------------- */
+  // 做法：一个浮层里放"好几屏"—— 一屏是"选择改什么"，其余是各个表单。
+  // 同一时刻只显示一屏，所以不会套娃弹窗。
+
+  var editor      = document.getElementById('editor');
+  var editorFab   = document.getElementById('editorFab');
+  var editorBack  = document.getElementById('editorBack');
+  var editorTitle = document.getElementById('editorTitle');
+  var pickView    = document.getElementById('editorPick');
+
+  // 名字（选择题按钮上的 data-editor）→ 那一屏的元件 + 标题
+  var EDITOR_SCREENS = {
+    post:    { el: document.getElementById('editorPost'),    title: '📝 发一条帖子' },
+    essay:   { el: document.getElementById('editorEssay'),   title: '✒️ 写一篇随笔' },
+    profile: { el: document.getElementById('editorProfile'), title: '👤 我的资料' }
+  };
+
+  function openEditor() {
+    if (!editor) return;
+    showScreen(null);            // 每次打开都先回到"选择"那一屏
+    editor.hidden = false;
+  }
+
+  function closeEditor() {
+    if (editor) editor.hidden = true;
+  }
+
+  // name 传 null = 显示"选择"屏；传 'post' / 'essay' / 'profile' = 显示对应表单
+  function showScreen(name) {
+    for (var key in EDITOR_SCREENS) {
+      if (EDITOR_SCREENS[key].el) EDITOR_SCREENS[key].el.hidden = (key !== name);
+    }
+    if (pickView) pickView.hidden = !!name;
+    if (editorBack) editorBack.hidden = !name;
+    if (editorTitle) editorTitle.textContent = name ? EDITOR_SCREENS[name].title : '你要编辑哪一部分？';
+
+    if (name) {                                   // 进表单时，把光标放进第一个输入框
+      var first = EDITOR_SCREENS[name].el.querySelector('input, textarea');
+      if (first) first.focus();
+    }
+  }
+
+  /* ---------------------- 底部的小提示条 ---------------------- */
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+
+  function showToast(text, bad) {
+    if (!toastEl) return;
+    toastEl.textContent = text;
+    toastEl.className = 'toast' + (bad ? ' toast--bad' : '');
+    toastEl.hidden = false;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.hidden = true; }, 2600);
+  }
+
   function enterOwnerMode() {
     closeGate();
     document.body.classList.add('owner-mode');
-    if (ownerPanel) ownerPanel.hidden = false;
+    if (editorFab) editorFab.hidden = false;
     if (rootBadge) rootBadge.hidden = false;
   }
 
   function exitOwnerMode() {
+    closeEditor();
     document.body.classList.remove('owner-mode');
-    if (ownerPanel) ownerPanel.hidden = true;
+    if (editorFab) editorFab.hidden = true;
     if (rootBadge) rootBadge.hidden = true;
-    logout();      // ← 新增：顺便通知后端把这张令牌作废
+    logout();      // 顺便通知后端把这张令牌作废
   }
 
   // 点"确认"：把密码【发给后端】，让后端说了算
@@ -245,6 +300,11 @@
       else if (e.key === 'Escape') { e.preventDefault(); closeGate(); }
       return;
     }
+    // 编辑弹窗开着时：Esc 关掉它；其它按键不触发 ↑+←（免得弹窗上又叠一个密码框）
+    if (editor && !editor.hidden) {
+      if (e.key === 'Escape') { e.preventDefault(); closeEditor(); }
+      return;
+    }
     var el = document.activeElement;
     if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return;
 
@@ -257,11 +317,50 @@
 
   var gateOk = document.getElementById('gateOk');
   var gateCancel = document.getElementById('gateCancel');
-  var ownerExit = document.getElementById('ownerExit');
   if (gateOk) gateOk.addEventListener('click', submitPassword);
   if (gateCancel) gateCancel.addEventListener('click', closeGate);
-  if (ownerExit) ownerExit.addEventListener('click', exitOwnerMode);
   if (gate) gate.addEventListener('click', function (e) { if (e.target === gate) closeGate(); });
+
+  /* ---------------------- 编辑弹窗的点击事件 ---------------------- */
+  var ownerExit = document.getElementById('ownerExit');
+  if (ownerExit) ownerExit.addEventListener('click', exitOwnerMode);
+
+  if (editorFab) editorFab.addEventListener('click', openEditor);
+  if (editorBack) editorBack.addEventListener('click', function () { showScreen(null); });
+
+  if (editor) {
+    var editorCloseBtn = document.getElementById('editorClose');
+    if (editorCloseBtn) editorCloseBtn.addEventListener('click', closeEditor);
+    // 点"弹窗外面那圈模糊的遮罩"也关掉
+    editor.addEventListener('click', function (e) { if (e.target === editor) closeEditor(); });
+  }
+
+  // 第 1 屏：点了哪一项，就切到哪一屏
+  if (pickView) {
+    pickView.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-editor]');
+      if (btn && !btn.disabled) showScreen(btn.dataset.editor);
+    });
+  }
+
+  // 「清空」：把那一屏里的输入框清干净
+  function clearForm(formId) {
+    var form = document.getElementById(formId);
+    if (!form) return;
+    var fields = form.querySelectorAll('input, textarea');
+    for (var i = 0; i < fields.length; i += 1) fields[i].value = '';
+  }
+  var postResetBtn = document.getElementById('postReset');
+  var essayResetBtn = document.getElementById('essayReset');
+  if (postResetBtn) postResetBtn.addEventListener('click', function () { clearForm('editorPost'); });
+  if (essayResetBtn) essayResetBtn.addEventListener('click', function () { clearForm('editorEssay'); });
+
+  // 「保存」：这一步先只给一句提示（下一步才真的发给后端）
+  var notWiredYet = ['postSave', 'essaySave', 'profileSave'];
+  for (var n = 0; n < notWiredYet.length; n += 1) {
+    var saveBtn = document.getElementById(notWiredYet[n]);
+    if (saveBtn) saveBtn.addEventListener('click', function () { showToast('保存还没接上后端 —— 下一步就做它'); });
+  }
 
   /* ---------------------- 第 2 步：让网页去调后端 ---------------------- */
   // 后端地址：现在它跑在你自己的电脑上，所以是 localhost。
