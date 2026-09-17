@@ -30,39 +30,51 @@ import java.util.Map;
 public class EssayAdminController {
 
     private final EssayRepository repository;
+    private final ImageService images;
 
-    public EssayAdminController(EssayRepository repository) {
+    public EssayAdminController(EssayRepository repository, ImageService images) {
         this.repository = repository;
+        this.images = images;
     }
 
-    /** 新增一篇：没写日期就默认今天 */
+    /** 新增一篇：没写日期就默认今天（图片要先有随笔 id，所以放在存完之后） */
     @PostMapping
-    public Essay create(@RequestBody EssayForm form) {
+    public EssayView create(@RequestBody EssayForm form) {
         LocalDate date = form.writtenOn() != null ? form.writtenOn() : LocalDate.now();
-        Essay essay = new Essay(date, form.title(), form.body(), nextSortOrder());
-        return repository.save(essay);      // save = INSERT（如果是新对象）
+        Essay saved = repository.save(new Essay(date, form.title(), form.body(), nextSortOrder()));
+
+        if (form.images() != null) {
+            images.replace(ImageService.ESSAY, saved.getId(), form.images());
+        }
+        return EssayView.of(saved, images.pathsOf(ImageService.ESSAY, saved.getId()));
     }
 
     /** 修改某一篇：先按 id 找，找不到就 404 */
     @PutMapping("/{id}")
-    public ResponseEntity<Essay> update(@PathVariable Long id, @RequestBody EssayForm form) {
+    public ResponseEntity<EssayView> update(@PathVariable Long id, @RequestBody EssayForm form) {
         return repository.findById(id)
                 .map(essay -> {
                     if (form.writtenOn() != null) essay.setWrittenOn(form.writtenOn());
                     essay.setTitle(form.title());
                     essay.setBody(form.body());
-                    return ResponseEntity.ok(repository.save(essay));   // save = UPDATE（id 已存在）
+                    Essay saved = repository.save(essay);   // save = UPDATE（id 已存在）
+
+                    if (form.images() != null) {
+                        images.replace(ImageService.ESSAY, id, form.images());
+                    }
+                    return ResponseEntity.ok(EssayView.of(saved, images.pathsOf(ImageService.ESSAY, id)));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    /** 删除某一篇 */
+    /** 删除某一篇：它的图片记录也跟着走 */
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
         if (!repository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
         repository.deleteById(id);
+        images.removeAll(ImageService.ESSAY, id);
         return ResponseEntity.ok(Map.of("ok", true, "deleted", id));
     }
 

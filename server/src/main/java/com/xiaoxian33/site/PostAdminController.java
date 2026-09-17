@@ -29,36 +29,52 @@ import java.util.Map;
 public class PostAdminController {
 
     private final PostRepository repository;
+    private final ImageService images;
 
-    public PostAdminController(PostRepository repository) {
+    public PostAdminController(PostRepository repository, ImageService images) {
         this.repository = repository;
+        this.images = images;
     }
 
+    /** 发一条：先把帖子本身存进去（这时才有 id），再记下它的图片 */
     @PostMapping
-    public Post create(@RequestBody PostForm form) {
+    public PostView create(@RequestBody PostForm form) {
         LocalDate date = form.publishedAt() != null ? form.publishedAt() : LocalDate.now();
-        return repository.save(new Post(form.title(), form.body(), form.tags(), date));
+        Post saved = repository.save(new Post(form.title(), form.body(), form.tags(), date));
+
+        if (form.images() != null) {
+            images.replace(ImageService.POST, saved.getId(), form.images());
+        }
+        return PostView.of(saved, images.pathsOf(ImageService.POST, saved.getId()));
     }
 
+    /** 改一条：正文之外，图片也是"整条提交"（不带 images = 不动图；带 [] = 清空） */
     @PutMapping("/{id}")
-    public ResponseEntity<Post> update(@PathVariable Long id, @RequestBody PostForm form) {
+    public ResponseEntity<PostView> update(@PathVariable Long id, @RequestBody PostForm form) {
         return repository.findById(id)
                 .map(post -> {
                     post.setTitle(form.title());
                     if (form.body() != null) post.setBody(form.body());
                     post.setTags(form.tags());
                     if (form.publishedAt() != null) post.setPublishedAt(form.publishedAt());
-                    return ResponseEntity.ok(repository.save(post));
+                    Post saved = repository.save(post);
+
+                    if (form.images() != null) {
+                        images.replace(ImageService.POST, id, form.images());
+                    }
+                    return ResponseEntity.ok(PostView.of(saved, images.pathsOf(ImageService.POST, id)));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /** 删一条：它的图片记录也跟着走（磁盘上的图片文件先留着） */
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
         if (!repository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
         repository.deleteById(id);
+        images.removeAll(ImageService.POST, id);
         return ResponseEntity.ok(Map.of("ok", true, "deleted", id));
     }
 }

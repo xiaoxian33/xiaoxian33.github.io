@@ -39,6 +39,12 @@
         '<div class="post__meta"><span class="post__date">' + esc(p.date) + '</span></div>' +
         '<h3 class="post__title">' + esc(p.title) + '</h3>' +
         '<p class="post__excerpt">' + esc(p.excerpt) + '</p>' +
+        // 有图就把图排出来（图片地址在 postFromApi 里已经翻译成完整网址了）
+        (p.images && p.images.length
+          ? '<div class="post__images">' + p.images.map(function (src) {
+              return '<img src="' + esc(src) + '" alt="" loading="lazy" />';
+            }).join('') + '</div>'
+          : '') +
         '<div class="post__tags">' + p.tags.map(function (t) { return '<span>#' + esc(t) + '</span>'; }).join('') + '</div>' +
       '</a>' +
       // ✏️🗑️ 只有站长看得见（靠 body.owner-mode 控制显隐），点它们不会触发卡片跳转
@@ -66,9 +72,16 @@
     return text.length > limit ? text.slice(0, limit) + '…' : text;
   }
 
+  // 后端给的图片是"相对路径"（uploads/2026/09/x.jpg），
+  // 但 <img> 要的是完整地址 → 这里统一翻译一次，别处就不用再操心
+  function imgUrl(path) {
+    return API_BASE + '/' + String(path || '').replace(/^\/+/, '');
+  }
+
   function postFromApi(p) {
     return {
       id: p.id,                                                  // ← 改 / 删要靠它认人
+      images: (p.images || []).map(imgUrl),                       // ← 图片：相对路径 → 完整网址
       date: String(p.publishedAt || '').replace(/-/g, ' · '),  // 2026-09-12 → 2026 · 09 · 12
       title: p.title || '(无标题)',
       excerpt: makeExcerpt(p.body),
@@ -398,7 +411,8 @@
     var data = {
       title: document.getElementById('postTitle').value.trim(),
       body: body,
-      tags: document.getElementById('postTags').value.trim()
+      tags: document.getElementById('postTags').value.trim(),
+      images: formImages.post       // 图片路径，顺序就是页面上的顺序
     };
     var date = document.getElementById('postPublishedAt').value;
     if (date) data.publishedAt = date;      // 不填就【不发】这个字段 → 后端自动用今天
@@ -425,7 +439,8 @@
 
     var data = {
       title: document.getElementById('essayTitle').value.trim(),
-      body: body
+      body: body,
+      images: formImages.essay
     };
     var date = document.getElementById('essayWrittenOn').value;
     if (date) data.writtenOn = date;
@@ -498,11 +513,15 @@
   function resetPostForm() {
     clearForm('editorPost');
     editing.postId = null;
+    formImages.post = [];        // 图片清单也清掉（已经传上去的文件先留在服务器，以后写清理脚本）
+    drawImages('post');
     showEditNote('postEditNote', false);
   }
   function resetEssayForm() {
     clearForm('editorEssay');
     editing.essayId = null;
+    formImages.essay = [];
+    drawImages('essay');
     showEditNote('essayEditNote', false);
   }
 
@@ -516,6 +535,8 @@
     document.getElementById('postBody').value = raw.body || '';
     document.getElementById('postTags').value = raw.tags || '';
     document.getElementById('postPublishedAt').value = raw.publishedAt || '';
+    formImages.post = (raw.images || []).slice();   // 现有图片先摆进"选图区"
+    drawImages('post');
     showEditNote('postEditNote', true);
 
     openEditor();
@@ -531,6 +552,8 @@
     document.getElementById('essayWrittenOn').value = raw.writtenOn || '';
     document.getElementById('essayTitle').value = raw.title || '';
     document.getElementById('essayBody').value = raw.body || '';
+    formImages.essay = (raw.images || []).slice();
+    drawImages('essay');
     showEditNote('essayEditNote', true);
 
     openEditor();
@@ -569,6 +592,87 @@
     if (ee) { e.preventDefault(); startEditEssay(Number(ee.dataset.editEssay)); return; }
     var de = t.closest('[data-del-essay]');
     if (de) { e.preventDefault(); removeEssay(Number(de.dataset.delEssay)); }
+  });
+
+  /* ---------------------- ⑤ 图片：选图 → 立刻上传 → 记下路径 ---------------------- */
+  // 为什么"选完就上传"，而不是等点保存再一起传？
+  //   ① 用户马上看到缩略图，知道自己选对没有
+  //   ② 保存那一步只发一次 JSON（里面装着路径），不会出现"正文存了、图没存"的半截状态
+  // 代价：选完图又没保存 → 磁盘上会留下一个没人用的文件（以后可以写个清理脚本）
+  var formImages = { post: [], essay: [] };   // 每张图存的是后端给的【相对路径】
+  var imgBusy = { post: 0, essay: 0 };        // 正在上传几张（用来显示"上传中…"）
+  var IMG_MAX_MB = 5;                          // 和后端 UploadController 里的限制保持一致
+
+  function imgListEl(which) {
+    return document.getElementById(which === 'post' ? 'postImageList' : 'essayImageList');
+  }
+
+  function drawImages(which) {
+    var box = imgListEl(which);
+    if (!box) return;
+
+    var html = formImages[which].map(function (path, i) {
+      return '<span class="imgpick__item">' +
+          '<img src="' + esc(imgUrl(path)) + '" alt="" />' +
+          '<button type="button" class="imgpick__x" data-remove-image="' + which +
+            '" data-img-index="' + i + '" title="删掉这张">✕</button>' +
+        '</span>';
+    }).join('');
+
+    if (imgBusy[which] > 0) {
+      html += '<span class="imgpick__item imgpick__item--busy">上传中…</span>';
+    }
+    box.innerHTML = html;
+  }
+
+  function uploadImages(which, files) {
+    if (!files || !files.length) return;
+
+    // 先转成真正的数组：FileList 不保证有 forEach；
+    // 而且用 for 循环配 var 会让回调里拿到同一个 file（回调是循环结束后才跑的）
+    Array.prototype.slice.call(files).forEach(function (file) {
+      if (file.size > IMG_MAX_MB * 1024 * 1024) {
+        showToast('「' + file.name + '」超过 5MB，没传上去', true);
+        return;
+      }
+
+      imgBusy[which] += 1;
+      drawImages(which);
+
+      apiUploadImage(file)
+        .then(function (res) {
+          formImages[which].push(res.path);      // 路径拿到手，先记在"待保存清单"里
+        })
+        .catch(function (err) { showToast('有张图没传上去：' + err.message, true); })
+        .then(function () {
+          imgBusy[which] -= 1;
+          drawImages(which);
+        });
+    });
+  }
+
+  // 「选图」按钮 → 打开系统文件框；选完 → 上传；缩略图上的 ✕ → 从清单里去掉
+  ['post', 'essay'].forEach(function (which) {
+    var addBtn = document.getElementById(which + 'ImageAdd');
+    var input = document.getElementById(which + 'ImageInput');
+
+    if (addBtn && input) {
+      addBtn.addEventListener('click', function () { input.click(); });
+      input.addEventListener('change', function () {
+        uploadImages(which, input.files);
+        input.value = '';    // 清空一下，同一张图想再选一次也有效
+      });
+    }
+
+    var box = imgListEl(which);
+    if (box) {
+      box.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-remove-image]');
+        if (!btn) return;
+        formImages[which].splice(Number(btn.dataset.imgIndex), 1);
+        drawImages(which);
+      });
+    }
   });
 
   var postSaveBtn = document.getElementById('postSave');
@@ -650,14 +754,27 @@
     options = options || {};
     options.headers = options.headers || {};
     options.headers['Authorization'] = 'Bearer ' + readToken();
-    if (options.body) options.headers['Content-Type'] = 'application/json';
+
+    // 传文件（FormData）时【不能】自己写 Content-Type：
+    // 浏览器要往这个头里塞一段"边界字符串"（boundary）来分隔每个文件，我们自己写会把它搞坏。
+    // 所以判断一下：是 FormData 就交给浏览器，其余一律当 JSON。
+    var isForm = (typeof FormData !== 'undefined') && (options.body instanceof FormData);
+    if (options.body && !isForm) options.headers['Content-Type'] = 'application/json';
 
     return fetch(API_BASE + path, options).then(function (res) {
       if (res.status === 401) {          // 令牌无效 / 过期
         onAuthExpired();
         throw new Error('登录已过期');
       }
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (!res.ok) {
+        // 后端拒绝时会带一句人话（{"ok":false,"message":"图太大了…"}）
+        // 把它读出来显示给用户，比只说"HTTP 400"有用得多
+        return res.json()
+          .catch(function () { return null; })
+          .then(function (body) {
+            throw new Error((body && body.message) ? body.message : ('HTTP ' + res.status));
+          });
+      }
       return res.json();
     });
   }
@@ -680,6 +797,13 @@
   function apiUpdateEssay(id, data){ return authFetch('/api/admin/essays/' + id,  { method: 'PUT',    body: JSON.stringify(data) }); }
   function apiDeleteEssay(id)      { return authFetch('/api/admin/essays/' + id,  { method: 'DELETE' }); }
   function apiSaveProfile(patch)   { return authFetch('/api/admin/profile',       { method: 'PUT',    body: JSON.stringify(patch) }); }
+
+  // 第 8 个动作：传一张图（第一个"不是 JSON"的写接口 —— 发的是文件）
+  function apiUploadImage(file) {
+    var form = new FormData();
+    form.append('file', file);          // 字段名必须是 file，后端 @RequestParam("file") 等着它
+    return authFetch('/api/admin/uploads', { method: 'POST', body: form });
+  }
 
   // 把密码发给后端；成功 = 后端回 200 + 一张令牌
   function loginWith(password) {
@@ -797,6 +921,12 @@
       '<article class="entry">' +
         '<div class="entry__date">' + esc(date) + '</div>' +
         '<div class="entry__body">' + paras + '</div>' +
+        // 随笔的图：这里拿到的是后端原样数据，所以路径要现场翻译成完整网址
+        (e.images && e.images.length
+          ? '<div class="entry__images">' + e.images.map(function (src) {
+              return '<img src="' + esc(imgUrl(src)) + '" alt="" loading="lazy" />';
+            }).join('') + '</div>'
+          : '') +
       '</article>' +
       // ✏️🗑️ 只有站长看得见（body.owner-mode 控制显隐）
       '<div class="item-actions">' +

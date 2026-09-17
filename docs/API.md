@@ -3,7 +3,7 @@
 > **这份文件是干什么的**：前后端之间"接头点"的清单 —— 每个接口**要什么字段、还什么字段、什么时候会失败**。
 > 写代码前先看它，改接口后同步改它。**不要再靠记忆**（上次就是没对账：前端的 `date` 和后端的 `publishedAt` 对不上）。
 >
-> 最后核对时间：2026-09-16（对着实体类 + 控制器逐个核过）
+> 最后核对时间：2026-09-17（新增图片上传后重新核对过）
 
 ## 目录
 
@@ -13,10 +13,11 @@
 - [三、资料 profile](#三资料-profile)
 - [四、随笔 essay](#四随笔-essay)
 - [五、发帖 post](#五发帖-post)
-- [六、健康检查](#六健康检查)
-- [七、字段来源对照表（最有用的一页）](#七字段来源对照表最有用的一页)
-- [八、调用示例](#八调用示例)
-- [九、前端必须遵守的 3 条约定](#九前端必须遵守的-3-条约定)
+- [六、图片 upload](#六图片-upload)
+- [七、健康检查](#七健康检查)
+- [八、字段来源对照表（最有用的一页）](#八字段来源对照表最有用的一页)
+- [九、调用示例](#九调用示例)
+- [十、前端必须遵守的约定](#十前端必须遵守的约定)
 
 ---
 
@@ -26,6 +27,7 @@
 |---|---|
 | 后端地址 | `http://localhost:8080`（前端 `app.js` 里叫 `API_BASE`） |
 | 数据格式 | 一律 JSON；POST / PUT 必须带 `Content-Type: application/json` |
+| **唯一例外** | `POST /api/admin/uploads`（传图片）用 `multipart/form-data`：前端**不要**自己写 `Content-Type`，浏览器要生成分隔文件的边界字符串 |
 | 编码 | UTF-8（后端已强制声明，中文不会乱码） |
 | 跨域 CORS | 所有控制器都是 `@CrossOrigin(origins = "*")`（学习阶段先全放开，上线前要收紧） |
 | 日期格式 | `LocalDate` → `"2026-09-16"`；`LocalDateTime` → `"2026-09-16T19:25:12.081"` |
@@ -37,8 +39,11 @@
 |---|---|---|
 | `401` | 密码不对（登录时） | `{"ok":false,"message":"密码不对"}` |
 | `401` | 没带令牌 / 令牌无效或过期（**所有 `/api/admin/**`**） | `{"ok":false,"message":"需要站长令牌"}` |
+| `400` | 上传的图类型不对 / 超过 5MB / 文件是空的 | `{"ok":false,"message":"图太大了：6144KB，一张最多 5MB"}` |
 | `404` | 改 / 删一个不存在的 id | 空响应体 |
 | `500` | 数据库拒绝（例如正文为空，但 `body` 不允许为空） | Spring 默认错误页 |
+
+> 前端 `authFetch()` 会把 `400` 里的 `message` **直接显示给用户**（比只说"HTTP 400"有用得多）。
 
 ---
 
@@ -238,7 +243,78 @@
 
 ---
 
-## 六、健康检查
+## 六、图片 upload
+
+> 帖子 / 随笔都能配图（可以多张，按选图顺序排）。
+> **图片文件不进数据库** —— 数据库里只存路径，文件躺在硬盘上。
+
+### 1. `POST /api/admin/uploads` —— 传一张图（带令牌）🔒
+
+⚠️ **这是唯一一个不是 JSON 的接口**：请求体是 `multipart/form-data`，字段名必须是 `file`。
+
+| 项 | 规定 |
+|---|---|
+| 字段名 | `file`（一次一张；要传多张就调多次） |
+| 允许类型 | `jpg` / `jpeg` / `png` / `webp` / `gif`（扩展名和 `Content-Type` 都会查，只看一个都能骗过去） |
+| 大小 | 单张 ≤ **5MB** |
+| 文件名 | 后端自己生成随机名（不用你传来的名字 —— 防中文/空格/`../` 爬目录） |
+| 存到哪 | `server/uploads/年/月/随机名.ext`（这个目录在 `.gitignore` 里，不进仓库） |
+
+**成功** `200`
+
+```json
+{ "ok": true, "path": "uploads/2026/09/d8aa34b241bf4bc9ae08f8a0807b5977.png", "size": 70 }
+```
+
+**失败** `400` → `{"ok":false,"message":"图太大了：6144KB，一张最多 5MB"}`（类型不对 / 太大 / 文件是空的）
+
+> `path` 是**相对路径**（前面没有 `/`）。前端要显示它，得自己拼上后端地址：
+> `API_BASE + '/' + path` → `http://localhost:8080/uploads/2026/09/xxx.png`
+> （前端已经封成了 `imgUrl(path)` 这一个函数。）
+
+**图片怎么被访问到**：后端 `WebConfig` 把硬盘上的 `uploads` 目录挂到了网址 `/uploads/**`。
+这条线**不在 `/api/admin/**` 里**，所以访客也能看图（本来就该这样）。
+
+### 2. 图片怎么跟着帖子 / 随笔走
+
+数据库里的 `image` 表（一张通用表，两种内容共用 —— 而不是 post_image / essay_image 两张）：
+
+| 列 | 说明 |
+|---|---|
+| `owner_type` | `post` = 帖子，`essay` = 随笔 |
+| `owner_id` | 挂在哪一条上 |
+| `path` | 图片路径（就是上传接口还回来的那个） |
+| `sort_order` | 顺序，数字小的排前面 |
+
+**接口里的 `images` 字段 = 路径字符串数组**（发过去和读回来形状一样，前端最好处理）：
+
+| 位置 | 多出来的东西 |
+|---|---|
+| `GET /api/posts` 每条帖子 | `images: ["uploads/2026/09/a.png", "..."]` |
+| `GET /api/essays` 每篇随笔 | 同上 |
+| `POST` / `PUT` `/api/admin/posts` | 请求体**可以**带 `images`（顺序 = 页面上的顺序） |
+| `POST` / `PUT` `/api/admin/essays` | 同上 |
+
+**`images` 的三条规矩**（和 `body` 那种"非 null 才更新"不一样，别搞混）：
+
+| 你怎么发 | 结果 |
+|---|---|
+| **不带** `images` 这个字段 | 图片**保持原样**（不动） |
+| `"images": []` | 这条内容的图**全部删掉** |
+| `"images": ["a.png","b.png"]` | **整条替换**成这两张，顺序照你给的来 |
+
+> 所以改内容时想加一张图 → 要把**老图一起带上**。
+> 推荐做法：像别的字段一样"整条提交"（前端就是这么干的：读取时存一份原样数据，保存时整条发回去）。
+
+### 3. 删内容时图片怎么办
+
+`DELETE /api/admin/posts/{id}` · `DELETE /api/admin/essays/{id}` 会**顺手删掉 `image` 表里的记录**（不留孤儿）。
+磁盘上的图片文件**先留着** —— 以后可以写个清理脚本打扫没人用的文件。
+（还有个已知的小浪费：选完图又没保存 → 磁盘上多一个没人用的文件。同样是以后清理脚本的事。）
+
+---
+
+## 七、健康检查
 
 | 方法 | 地址 | 权限 | 返回 |
 |---|---|---|---|
@@ -249,7 +325,7 @@
 
 ---
 
-## 七、字段来源对照表（最有用的一页）
+## 八、字段来源对照表（最有用的一页）
 
 **同一个东西，在三个地方可能有三个名字** —— 对不上账就是从这里开始的：
 
@@ -284,6 +360,18 @@
 | GitHub | `github` | `Profile.github` | `github` |
 | 修改时间 | `updatedAt` | `Profile.updatedAt` | **`updated_at`** |
 
+### 图片 image
+
+| 页面上的东西 | JSON 字段 | Java 字段 | 数据库列 |
+|---|---|---|---|
+| 这条内容的图片（数组） | `images` | `Image.path`（一张图 = 一行） | `path` |
+| 是谁的图 | ——（接口里不出现） | `Image.ownerType` / `Image.ownerId` | **`owner_type`** / **`owner_id`** |
+| 图片顺序 | 数组顺序 | `Image.sortOrder` | **`sort_order`** |
+
+> ⚠️ `images` **不在** `post` / `essay` 表里，它在**另一张表** `image` 里。
+> 接口返回的形状由 `PostView` / `EssayView` 两个 record 决定（实体 + 图片 = 给前端看的形状）。
+> 这就是为什么这层要单独存在：**表里的形状 ≠ 接口要还的形状**（实体里没有 `images` 这个字段）。
+
 **三条规律**（记住就不用每次查）：
 1. **JSON 字段名 = Java getter 去掉 `get` 首字母小写**（`getPublishedAt()` → `publishedAt`）—— 这是 Jackson 自动做的。
 2. **数据库列名 = 注解里写的**（`@Column(name = "published_at")`）；没写注解的就是字段名的下划线形式。
@@ -291,7 +379,7 @@
 
 ---
 
-## 八、调用示例
+## 九、调用示例
 
 ### 用 curl 测（后端在 localhost:8080）
 
@@ -313,6 +401,21 @@ curl -s http://localhost:8080/api/posts
 # 4) 故意不带令牌写一次 —— 应该看到 401，说明门卫还在值班
 curl -s -X POST http://localhost:8080/api/admin/posts \
      -H "Content-Type: application/json" -d "{\"body\":\"偷发一条\"}"
+
+# 5) 传一张图（-F 会让 curl 自动用 multipart/form-data，别自己写 Content-Type）
+curl -s -X POST http://localhost:8080/api/admin/uploads \
+     -H "Authorization: Bearer 把令牌粘在这里" \
+     -F "file=@D:/图片/猫.png;type=image/png"
+# → {"ok":true,"path":"uploads/2026/09/xxx.png","size":12345}
+
+# 6) 把这张图挂到帖子上（images 是路径数组，顺序就是显示顺序）
+curl -s -X POST http://localhost:8080/api/admin/posts \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer 把令牌粘在这里" \
+     -d "{\"title\":\"带图的帖子\",\"body\":\"正文\",\"tags\":\"\",\"images\":[\"uploads/2026/09/xxx.png\"]}"
+
+# 7) 图片本身怎么访问（不用令牌，访客也能看）
+curl -s -I http://localhost:8080/uploads/2026/09/xxx.png
 ```
 
 ### 前端 JS 的写法（也就是第 4 步要写的"发送管道"）
@@ -325,20 +428,39 @@ fetch(API_BASE + '/api/admin/posts', {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer ' + readToken()
   },
-  body: JSON.stringify({ title: t, body: b, tags: g, publishedAt: d })
+  body: JSON.stringify({ title: t, body: b, tags: g, publishedAt: d, images: paths })
 })
+```
+
+传文件的写法（唯一一个不是 JSON 的接口）：
+
+```js
+// 传文件时【千万不要】自己写 Content-Type ——
+// 浏览器要生成一段"边界字符串"来分隔文件，我们写了反而把它搞坏
+var form = new FormData();
+form.append('file', file);                                   // 字段名必须是 file
+fetch(API_BASE + '/api/admin/uploads', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer ' + readToken() },      // 只带令牌，别的交给浏览器
+  body: form
+}).then(function (res) { return res.json(); })
+  .then(function (data) { console.log(data.path); });         // 拿到路径，保存时带上
 ```
 
 ---
 
-## 九、前端必须遵守的 3 条约定
+## 十、前端必须遵守的约定
 
-1. **字段名严格照抄第七节的表**（尤其：`publishedAt` 不能写成 `date`；`tags` 是**字符串**不是数组）。
+1. **字段名严格照抄第八节的表**（尤其：`publishedAt` 不能写成 `date`；`tags` 是**字符串**不是数组）。
 2. **`PUT` 要"整体提交"**：`post` 的 `title`/`tags`、`essay` 的 `title`/`body` 是"无条件覆盖"，
    所以改东西时这几个字段必须一起带上。
    👉 推荐做法：**拿到现有的整条数据 → 改其中一处 → 整条发回去**（这样最不容易出错）。
 3. **收到 `401` 就退回访客模式**：清掉本地令牌 + 退出编辑模式 + 提示"登录已过期，请重新登录（↑+←）"，
    **不能白屏，也不能让人误以为保存成功了**。
+4. **图片是"路径数组"，不是文件本身**：
+   - 后端给的是**相对路径**（`uploads/2026/09/x.png`）→ 显示前必须拼上 `API_BASE`（前端封成了 `imgUrl()`）；
+   - 上传接口是**唯一**用 `multipart/form-data` 的，别给它写 JSON 的 `Content-Type`；
+   - 改内容时：**不带 `images` = 不动图**，带 `[]` = 清空，带列表 = 整条替换。
 
 
 

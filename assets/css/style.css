@@ -514,6 +514,37 @@ a.btn-sm { display: inline-block; text-decoration: none; }
 .picker__name { font-size: 14px; }
 .picker__hint { color: var(--faint); font-size: 11.5px; line-height: 1.6; }
 
+/* ---------------------- 选图区（发帖 / 随笔表单里） ---------------------- */
+.imgpick { display: flex; flex-direction: column; gap: 9px; align-items: flex-start; }
+.imgpick__list { display: flex; flex-wrap: wrap; gap: 8px; }
+.imgpick__list:empty { display: none; }        /* 一张图都没有时不留空隙 */
+.imgpick__item {
+  position: relative; width: 84px; height: 84px;
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--line-2); background: #150d18;
+}
+.imgpick__item img { width: 100%; height: 100%; object-fit: cover; }
+.imgpick__x {
+  position: absolute; top: 3px; right: 3px; width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; line-height: 1; cursor: pointer; padding: 0;
+  color: #fff; background: rgba(20, 8, 16, .8);
+  border: 1px solid var(--line-2); border-radius: 50%;
+}
+.imgpick__x:hover { background: #a8214f; border-color: #ff9bb6; }
+.imgpick__item--busy {
+  display: flex; align-items: center; justify-content: center;
+  color: var(--faint); font-size: 12px; border-style: dashed;
+}
+
+/* ---------------------- 帖子卡片 / 随笔正文里的图片 ---------------------- */
+.post__images, .entry__images { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.post__images img, .entry__images img {
+  width: 84px; height: 84px; object-fit: cover;
+  border-radius: 10px; border: 1px solid var(--line);
+}
+.entry__images img { width: 112px; height: 112px; }
+
 /* ---------------------- 列表里每条内容的「改 / 删」按钮 ---------------------- */
 .post-wrap, .entry-wrap { position: relative; }
 .item-actions {

@@ -10,7 +10,7 @@
   <!-- ⚠️ 每次改了 css / js，就把 ?v= 后面这个版本号改一下（改日期即可）
        原因：GitHub Pages 会给这些文件设缓存（约 10 分钟）。带上版本号，
        浏览器才会去拿新文件，否则会出现"HTML 是新的、app.js 是旧的"这种错配。 -->
-  <link rel="stylesheet" href="assets/css/style.css?v=20260917c" />
+  <link rel="stylesheet" href="assets/css/style.css?v=20260917d" />
 </head>
 <body>
 
@@ -463,7 +463,7 @@
             </button>
           </div>
 
-          <p class="form__note">🖼️ 图片排在下个阶段：发帖和随笔要能配图；「做过的项目」不需要图片，给个链接就够。</p>
+          <p class="form__note">🖼️ 发帖和随笔都能配图了（可以多张）；「做过的项目」只放简介 + 链接，不要图片。</p>
           <button class="btn-sm btn-sm--ghost" id="ownerExit" type="button">🚪 退出编辑模式</button>
         </div>
 
@@ -483,6 +483,14 @@
             <span class="field__label">标签<span class="field__opt">（用逗号隔开）</span></span>
             <input class="field__input" type="text" id="postTags" maxlength="200" placeholder="学习,Spring,前端" />
           </label>
+          <div class="field">
+            <span class="field__label">图片<span class="field__opt">（可选，能选多张；单张 ≤ 5MB）</span></span>
+            <div class="imgpick">
+              <div class="imgpick__list" id="postImageList"></div>
+              <button type="button" class="btn-sm btn-sm--ghost" id="postImageAdd">🖼️ 选图</button>
+              <input type="file" id="postImageInput" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden />
+            </div>
+          </div>
           <label class="field" for="postPublishedAt">
             <span class="field__label">日期<span class="field__opt">（留空 = 今天）</span></span>
             <input class="field__input" type="date" id="postPublishedAt" />
@@ -491,7 +499,7 @@
             <button type="button" class="btn-sm" id="postSave">保存</button>
             <button type="button" class="btn-sm btn-sm--ghost" id="postReset">清空</button>
           </div>
-          <p class="form__note">🖼️ 图片：等图片上传做好后，这里会多一个「选择图片」按钮。</p>
+          <p class="form__note">🖼️ 图片选完就立刻上传；保存时只把路径带上。保存成功后，列表里那一条就会显示这些图。</p>
         </section>
 
         <!-- ---------- 视图 3：随笔 ---------- -->
@@ -510,11 +518,19 @@
             <span class="field__label">正文<span class="field__req">必填</span></span>
             <textarea class="field__input field__input--area" id="essayBody" rows="8" placeholder="段落之间空一行，页面上就会分段"></textarea>
           </label>
+          <div class="field">
+            <span class="field__label">图片<span class="field__opt">（可选，能选多张；单张 ≤ 5MB）</span></span>
+            <div class="imgpick">
+              <div class="imgpick__list" id="essayImageList"></div>
+              <button type="button" class="btn-sm btn-sm--ghost" id="essayImageAdd">🖼️ 选图</button>
+              <input type="file" id="essayImageInput" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden />
+            </div>
+          </div>
           <div class="form__actions">
             <button type="button" class="btn-sm" id="essaySave">保存</button>
             <button type="button" class="btn-sm btn-sm--ghost" id="essayReset">清空</button>
           </div>
-          <p class="form__note">🖼️ 图片：等图片上传做好后，这里也会多一个「选择图片」按钮。</p>
+          <p class="form__note">🖼️ 和发帖一样：选完就上传，保存时只带路径。</p>
         </section>
 
         <!-- ---------- 视图 4：我的资料 ---------- -->
@@ -548,6 +564,6 @@
   <!-- 保存结果的提示条 -->
   <div class="toast" id="toast" hidden></div>
 
-  <script src="assets/js/app.js?v=20260917c"></script>
+  <script src="assets/js/app.js?v=20260917d"></script>
 </body>
 </html>
