@@ -10,7 +10,7 @@
   <!-- ⚠️ 每次改了 css / js，就把 ?v= 后面这个版本号改一下（改日期即可）
        原因：GitHub Pages 会给这些文件设缓存（约 10 分钟）。带上版本号，
        浏览器才会去拿新文件，否则会出现"HTML 是新的、app.js 是旧的"这种错配。 -->
-  <link rel="stylesheet" href="assets/css/style.css?v=20260917b" />
+  <link rel="stylesheet" href="assets/css/style.css?v=20260917c" />
 </head>
 <body>
 
@@ -469,6 +469,8 @@
 
         <!-- ---------- 视图 2：发帖 ---------- -->
         <section class="form" id="editorPost" hidden>
+          <p class="form__mode" id="postEditNote" hidden>✏️ 正在修改已有的帖子 ·
+            <button type="button" class="linkbtn" id="postCancelEdit">取消修改</button></p>
           <label class="field" for="postTitle">
             <span class="field__label">标题<span class="field__opt">（可留空）</span></span>
             <input class="field__input" type="text" id="postTitle" maxlength="200" placeholder="今天学了什么？" />
@@ -494,6 +496,8 @@
 
         <!-- ---------- 视图 3：随笔 ---------- -->
         <section class="form" id="editorEssay" hidden>
+          <p class="form__mode" id="essayEditNote" hidden>✏️ 正在修改已有的随笔 ·
+            <button type="button" class="linkbtn" id="essayCancelEdit">取消修改</button></p>
           <label class="field" for="essayWrittenOn">
             <span class="field__label">日期<span class="field__opt">（留空 = 今天）</span></span>
             <input class="field__input" type="date" id="essayWrittenOn" />
@@ -544,6 +548,6 @@
   <!-- 保存结果的提示条 -->
   <div class="toast" id="toast" hidden></div>
 
-  <script src="assets/js/app.js?v=20260917b"></script>
+  <script src="assets/js/app.js?v=20260917c"></script>
 </body>
 </html>

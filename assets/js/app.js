@@ -17,6 +17,10 @@
   // 下面的渲染 / 分页逻辑完全不用改。
   var POSTS = [];
 
+  // 后端原样的数据（没翻译过的）—— 编辑时要靠它把内容回填到表单里
+  var RAW_POSTS = [];
+  var ESSAYS = [];
+
   // 最近一次从后端拿到的资料（"我的资料"表单要用它回填，避免空表单把资料清空）
   var currentProfile = null;
 
@@ -30,12 +34,19 @@
   }
 
   function postHTML(p) {
-    return '<a class="post" href="#posts">' +
-      '<div class="post__meta"><span class="post__date">' + esc(p.date) + '</span></div>' +
-      '<h3 class="post__title">' + esc(p.title) + '</h3>' +
-      '<p class="post__excerpt">' + esc(p.excerpt) + '</p>' +
-      '<div class="post__tags">' + p.tags.map(function (t) { return '<span>#' + esc(t) + '</span>'; }).join('') + '</div>' +
-      '</a>';
+    return '<div class="post-wrap">' +
+      '<a class="post" href="#posts">' +
+        '<div class="post__meta"><span class="post__date">' + esc(p.date) + '</span></div>' +
+        '<h3 class="post__title">' + esc(p.title) + '</h3>' +
+        '<p class="post__excerpt">' + esc(p.excerpt) + '</p>' +
+        '<div class="post__tags">' + p.tags.map(function (t) { return '<span>#' + esc(t) + '</span>'; }).join('') + '</div>' +
+      '</a>' +
+      // ✏️🗑️ 只有站长看得见（靠 body.owner-mode 控制显隐），点它们不会触发卡片跳转
+      '<div class="item-actions">' +
+        '<button type="button" class="iconbtn" data-edit-post="' + p.id + '" title="改这条">✏️</button>' +
+        '<button type="button" class="iconbtn iconbtn--danger" data-del-post="' + p.id + '" title="删这条">🗑️</button>' +
+      '</div>' +
+    '</div>';
   }
 
   /* ---------------------- 翻译官：后端的 Post → 页面要的样子 ---------------------- */
@@ -57,6 +68,7 @@
 
   function postFromApi(p) {
     return {
+      id: p.id,                                                  // ← 改 / 删要靠它认人
       date: String(p.publishedAt || '').replace(/-/g, ' · '),  // 2026-09-12 → 2026 · 09 · 12
       title: p.title || '(无标题)',
       excerpt: makeExcerpt(p.body),
@@ -343,11 +355,14 @@
     editor.addEventListener('click', function (e) { if (e.target === editor) closeEditor(); });
   }
 
-  // 第 1 屏：点了哪一项，就切到哪一屏
+  // 第 1 屏：点了哪一项，就切到哪一屏（从"选择"进来 = 新建，所以要清空并退出编辑状态）
   if (pickView) {
     pickView.addEventListener('click', function (e) {
       var btn = e.target.closest('[data-editor]');
-      if (btn && !btn.disabled) showScreen(btn.dataset.editor);
+      if (!btn || btn.disabled) return;
+      if (btn.dataset.editor === 'post') resetPostForm();
+      if (btn.dataset.editor === 'essay') resetEssayForm();
+      showScreen(btn.dataset.editor);
     });
   }
 
@@ -360,8 +375,8 @@
   }
   var postResetBtn = document.getElementById('postReset');
   var essayResetBtn = document.getElementById('essayReset');
-  if (postResetBtn) postResetBtn.addEventListener('click', function () { clearForm('editorPost'); });
-  if (essayResetBtn) essayResetBtn.addEventListener('click', function () { clearForm('editorEssay'); });
+  if (postResetBtn) postResetBtn.addEventListener('click', resetPostForm);
+  if (essayResetBtn) essayResetBtn.addEventListener('click', resetEssayForm);
 
   /* ---------------------- ③ 「保存」按钮：真的发给后端 ---------------------- */
   // 每个保存按钮都是同一套路：读表单 → 检查 → 发请求 → 成功后刷新 + 提示。
@@ -375,7 +390,8 @@
     btn.textContent = busy ? '保存中…' : normalText;
   }
 
-  function saveNewPost() {
+  // 发帖 / 改帖【共用】这一个函数：看 editing.postId 有没有值就知道是哪一种
+  function savePostForm() {
     var body = document.getElementById('postBody').value.trim();
     if (!body) { showToast('正文不能为空', true); return; }      // 前端先挡一道（后端还会再挡）
 
@@ -387,20 +403,23 @@
     var date = document.getElementById('postPublishedAt').value;
     if (date) data.publishedAt = date;      // 不填就【不发】这个字段 → 后端自动用今天
 
+    var isEdit = !!editing.postId;
     var btn = document.getElementById('postSave');
     setBusy(btn, true);
-    apiCreatePost(data)
+    // ★ 整个函数里只有这一行不同：有 id → 改（PUT）；没 id → 新建（POST）
+    (isEdit ? apiUpdatePost(editing.postId, data) : apiCreatePost(data))
       .then(function () {
-        showToast('已发布 ✓');
-        clearForm('editorPost');
+        showToast(isEdit ? '已更新 ✓' : '已发布 ✓');
+        resetPostForm();
         closeEditor();
-        loadPosts();                        // 重新拉一遍数据 → 页面上立刻出现这一条
+        loadPosts();                        // 重新拉一遍数据 → 页面上立刻看到结果
       })
       .catch(function (err) { showToast('没保存成功：' + err.message, true); })
       .then(function () { setBusy(btn, false); });
   }
 
-  function saveNewEssay() {
+  // 写随笔 / 改随笔 共用这一个函数
+  function saveEssayForm() {
     var body = document.getElementById('essayBody').value.trim();
     if (!body) { showToast('正文不能为空', true); return; }
 
@@ -411,12 +430,13 @@
     var date = document.getElementById('essayWrittenOn').value;
     if (date) data.writtenOn = date;
 
+    var isEdit = !!editing.essayId;
     var btn = document.getElementById('essaySave');
     setBusy(btn, true);
-    apiCreateEssay(data)
+    (isEdit ? apiUpdateEssay(editing.essayId, data) : apiCreateEssay(data))
       .then(function () {
-        showToast('已保存 ✓');
-        clearForm('editorEssay');
+        showToast(isEdit ? '已更新 ✓' : '已保存 ✓');
+        resetEssayForm();
         closeEditor();
         loadEssays();
       })
@@ -457,12 +477,111 @@
     set('profileGithub', currentProfile.github);
   }
 
+  /* ---------------------- ④ 改 / 删已有的内容 ---------------------- */
+  // 记住"现在正在改哪一条"：null = 新建（新建用 POST，改就用 PUT）
+  var editing = { postId: null, essayId: null };
+
+  function findRawPost(id) {
+    for (var i = 0; i < RAW_POSTS.length; i += 1) if (RAW_POSTS[i].id === id) return RAW_POSTS[i];
+    return null;
+  }
+  function findRawEssay(id) {
+    for (var i = 0; i < ESSAYS.length; i += 1) if (ESSAYS[i].id === id) return ESSAYS[i];
+    return null;
+  }
+  function showEditNote(id, show) {
+    var el = document.getElementById(id);
+    if (el) el.hidden = !show;
+  }
+
+  // 清空表单 + 回到"新建"状态（点「清空」或「取消修改」都走这里）
+  function resetPostForm() {
+    clearForm('editorPost');
+    editing.postId = null;
+    showEditNote('postEditNote', false);
+  }
+  function resetEssayForm() {
+    clearForm('editorEssay');
+    editing.essayId = null;
+    showEditNote('essayEditNote', false);
+  }
+
+  // 点 ✏️：把那一条的内容回填进表单，并记住它的 id
+  function startEditPost(id) {
+    var raw = findRawPost(id);
+    if (!raw) { showToast('没找到这条帖子，刷新页面再试', true); return; }
+
+    editing.postId = id;
+    document.getElementById('postTitle').value = raw.title || '';
+    document.getElementById('postBody').value = raw.body || '';
+    document.getElementById('postTags').value = raw.tags || '';
+    document.getElementById('postPublishedAt').value = raw.publishedAt || '';
+    showEditNote('postEditNote', true);
+
+    openEditor();
+    showScreen('post');
+    if (editorTitle) editorTitle.textContent = '📝 修改这条帖子';
+  }
+
+  function startEditEssay(id) {
+    var raw = findRawEssay(id);
+    if (!raw) { showToast('没找到这篇随笔，刷新页面再试', true); return; }
+
+    editing.essayId = id;
+    document.getElementById('essayWrittenOn').value = raw.writtenOn || '';
+    document.getElementById('essayTitle').value = raw.title || '';
+    document.getElementById('essayBody').value = raw.body || '';
+    showEditNote('essayEditNote', true);
+
+    openEditor();
+    showScreen('essay');
+    if (editorTitle) editorTitle.textContent = '✒️ 修改这篇随笔';
+  }
+
+  // 点 🗑️：先问一句（确认框是浏览器自带的，最省事），再删
+  function removePost(id) {
+    var raw = findRawPost(id);
+    var name = (raw && raw.title) ? raw.title : ('#' + id);
+    if (!window.confirm('确定删掉这条帖子吗？\n\n' + name + '\n\n删了就找不回来了。')) return;
+
+    apiDeletePost(id)
+      .then(function () { showToast('已删除 ✓'); loadPosts(); })
+      .catch(function (err) { showToast('没删成功：' + err.message, true); });
+  }
+
+  function removeEssay(id) {
+    if (!window.confirm('确定删掉这篇随笔吗？\n\n删了就找不回来了。')) return;
+
+    apiDeleteEssay(id)
+      .then(function () { showToast('已删除 ✓'); loadEssays(); })
+      .catch(function (err) { showToast('没删成功：' + err.message, true); });
+  }
+
+  // 列表是用 innerHTML 反复重画的 → 没法给每个按钮单独绑事件，
+  // 所以绑在 document 上，靠点击"冒泡上来"再判断点的是哪个（这叫事件委托）
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    var ep = t.closest('[data-edit-post]');
+    if (ep) { e.preventDefault(); startEditPost(Number(ep.dataset.editPost)); return; }
+    var dp = t.closest('[data-del-post]');
+    if (dp) { e.preventDefault(); removePost(Number(dp.dataset.delPost)); return; }
+    var ee = t.closest('[data-edit-essay]');
+    if (ee) { e.preventDefault(); startEditEssay(Number(ee.dataset.editEssay)); return; }
+    var de = t.closest('[data-del-essay]');
+    if (de) { e.preventDefault(); removeEssay(Number(de.dataset.delEssay)); }
+  });
+
   var postSaveBtn = document.getElementById('postSave');
   var essaySaveBtn = document.getElementById('essaySave');
   var profileSaveBtn = document.getElementById('profileSave');
-  if (postSaveBtn) postSaveBtn.addEventListener('click', saveNewPost);
-  if (essaySaveBtn) essaySaveBtn.addEventListener('click', saveNewEssay);
+  if (postSaveBtn) postSaveBtn.addEventListener('click', savePostForm);
+  if (essaySaveBtn) essaySaveBtn.addEventListener('click', saveEssayForm);
   if (profileSaveBtn) profileSaveBtn.addEventListener('click', saveProfileForm);
+
+  var postCancelEdit = document.getElementById('postCancelEdit');
+  var essayCancelEdit = document.getElementById('essayCancelEdit');
+  if (postCancelEdit) postCancelEdit.addEventListener('click', resetPostForm);
+  if (essayCancelEdit) essayCancelEdit.addEventListener('click', resetEssayForm);
 
   /* ---------------------- 第 2 步：让网页去调后端 ---------------------- */
   // 后端地址：现在它跑在你自己的电脑上，所以是 localhost。
@@ -674,10 +793,17 @@
       .map(function (p) { return '<p>' + esc(p.trim()) + '</p>'; })
       .join('');
 
-    return '<article class="entry">' +
-      '<div class="entry__date">' + esc(date) + '</div>' +
-      '<div class="entry__body">' + paras + '</div>' +
-    '</article>';
+    return '<div class="entry-wrap">' +
+      '<article class="entry">' +
+        '<div class="entry__date">' + esc(date) + '</div>' +
+        '<div class="entry__body">' + paras + '</div>' +
+      '</article>' +
+      // ✏️🗑️ 只有站长看得见（body.owner-mode 控制显隐）
+      '<div class="item-actions">' +
+        '<button type="button" class="iconbtn" data-edit-essay="' + e.id + '" title="改这篇">✏️</button>' +
+        '<button type="button" class="iconbtn iconbtn--danger" data-del-essay="' + e.id + '" title="删这篇">🗑️</button>' +
+      '</div>' +
+    '</div>';
   }
 
   function loadEssays() {
@@ -687,6 +813,7 @@
         return res.json();
       })
       .then(function (list) {
+        ESSAYS = list;                        // 存一份原样的（编辑回填要用）
         var box = document.getElementById('essayList');
         if (!box) return;
 
@@ -713,7 +840,8 @@
         return res.json();
       })
       .then(function (list) {
-        POSTS = list.map(postFromApi);   // 先翻译，再交给原来那套渲染逻辑
+        RAW_POSTS = list;                // 存一份原样的（编辑回填要用）
+        POSTS = list.map(postFromApi);   // 再翻译一份给页面用
         if (drawHome) drawHome();        // 重画首页的「近期发帖」
         if (drawAll) drawAll();          // 重画「发帖」页
       })

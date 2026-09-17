@@ -514,6 +514,29 @@ a.btn-sm { display: inline-block; text-decoration: none; }
 .picker__name { font-size: 14px; }
 .picker__hint { color: var(--faint); font-size: 11.5px; line-height: 1.6; }
 
+/* ---------------------- 列表里每条内容的「改 / 删」按钮 ---------------------- */
+.post-wrap, .entry-wrap { position: relative; }
+.item-actions {
+  position: absolute; top: 8px; right: 10px; z-index: 3;
+  display: none; gap: 6px;
+}
+body.owner-mode .item-actions { display: flex; }   /* 只有站长模式才出现，访客完全看不到 */
+.iconbtn {
+  appearance: none; cursor: pointer; font: inherit; font-size: 13px; line-height: 1;
+  padding: 5px 8px; border-radius: 8px;
+  color: var(--muted); background: rgba(12, 7, 13, .78); border: 1px solid var(--line-2);
+}
+.iconbtn:hover { color: var(--pink-2); border-color: var(--pink); }
+.iconbtn--danger:hover { color: #ff9bb6; border-color: #a8214f; }
+
+/* 表单顶部那条"正在修改…"提示 */
+.form__mode { color: var(--pink-2); font-size: 12.5px; margin: 0 0 12px; }
+.linkbtn {
+  appearance: none; cursor: pointer; font: inherit; font-size: 12.5px;
+  padding: 0 0 0 4px; background: none; border: none;
+  color: var(--pink); text-decoration: underline;
+}
+
 /* ---------------------- 保存结果的提示条 ---------------------- */
 .toast {
   position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
