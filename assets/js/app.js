@@ -252,6 +252,9 @@
     document.body.classList.add('owner-mode');
     if (editorFab) editorFab.hidden = false;
     if (rootBadge) rootBadge.hidden = false;
+    // 登录成功后【直接弹出编辑器】，省掉"再去点右下角按钮"这一步。
+    // 关掉弹窗后，右下角的「✏️ 编辑」还在，随时可以再叫出来。
+    openEditor();
   }
 
   function exitOwnerMode() {
