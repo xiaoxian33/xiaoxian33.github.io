@@ -17,3 +17,7 @@ desktop.ini
 server/target/
 server/.mvn/wrapper/maven-wrapper.jar.bak
 server/src/main/resources/application-local.properties
+
+# ---- 私人笔记 ----
+# 学习记录、上线手册、计划草稿只在本地（notes/ 目录里），不进公开仓库
+notes/
