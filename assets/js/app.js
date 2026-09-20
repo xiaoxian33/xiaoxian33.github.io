@@ -688,9 +688,14 @@
   if (essayCancelEdit) essayCancelEdit.addEventListener('click', resetEssayForm);
 
   /* ---------------------- 第 2 步：让网页去调后端 ---------------------- */
-  // 后端地址：现在它跑在你自己的电脑上，所以是 localhost。
-  // 以后把后端部署到服务器，只需要改这一行。
-  var API_BASE = 'http://localhost:8080';
+  // 后端地址：
+  //   本地打开 / GitHub Pages 预览  → 后端跑在自己电脑上，用 localhost:8080
+  //   部署在服务器上（前后端同源）  → 用相对路径 ''，请求就是 /api/xxx
+  //   ⚠️ 以后换域名也不用改这里，它会自己判断 ✓
+  var host = location.hostname;
+  var API_BASE = (host === '' || host === 'localhost' || host === '127.0.0.1' || host.indexOf('github.io') >= 0)
+    ? 'http://localhost:8080'
+    : '';
 
   var apiStatusEl = document.getElementById('apiStatus');
 
