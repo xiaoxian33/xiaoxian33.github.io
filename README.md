@@ -3,11 +3,12 @@
 个人网站 —— 左侧导航切换页面，内容存在数据库里：**访客只读，站长可写**。
 原生 HTML/CSS/JS 前端 + Spring Boot / MySQL 后端，写接口由令牌统一鉴权。
 
-在线地址：**https://xiaoxian33.github.io**
+**上线地址**：http://47.107.76.13 —— 前端 + 后端 + MySQL 都在一台云服务器上（Ubuntu 24.04 · Nginx · systemd）
+**前端镜像**：https://xiaoxian33.github.io （GitHub Pages，同一份前端代码）
 
 ## 项目简介
 
-一个"自己写、自己用"的个人站。页面全部是静态 HTML（托管在 GitHub Pages），内容存在自己的 MySQL 里：
+一个"自己写、自己用"的个人站。页面全部是静态 HTML（**同一份代码既部署在云服务器上，也放在 GitHub Pages 做镜像**），内容存在自己的 MySQL 里：
 **访客只读，站长在页面上登录后就能发帖、配图、写随笔、改资料。**
 
 做它的初衷是**把学过的东西真的用一遍** —— 所以有意不用前端框架、不引重型依赖，
@@ -21,9 +22,10 @@
 
 | 层 | 技术 |
 |---|---|
-| 前端 | 原生 HTML / CSS / JavaScript（无框架），托管于 GitHub Pages |
+| 前端 | 原生 HTML / CSS / JavaScript（无框架）；同一份代码部署在云服务器与 GitHub Pages |
 | 后端 | Java 21 · Spring Boot · Spring Data JPA (Hibernate) |
 | 数据库 | MySQL 8 |
+| 部署 | 阿里云轻量（Ubuntu 24.04）· Nginx（静态 + 反代 `/api`）· systemd（开机自启 / 崩溃自愈） |
 | 鉴权 | BCrypt 密码哈希 + Bearer 令牌；写接口统一挂 `/api/admin/**`，由拦截器一次鉴权 |
 
 ## 设计上的几个取舍（为什么这么做）

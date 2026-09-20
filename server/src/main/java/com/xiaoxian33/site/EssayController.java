@@ -31,11 +31,11 @@ public class EssayController {
         this.images = images;
     }
 
-    /** 全部随笔，按日期从早到晚 */
+    /** 全部随笔，按日期从晚到早（最新写的排最前面） */
     @GetMapping
     public List<EssayView> list() {
         Map<Long, List<String>> imagesByEssay = images.pathsByOwner(ImageService.ESSAY);
-        return repository.findAllByOrderByWrittenOnAsc()
+        return repository.findAllByOrderByWrittenOnDesc()
                 .stream()
                 .map(essay -> EssayView.of(essay, imagesByEssay.getOrDefault(essay.getId(), List.of())))
                 .toList();
