@@ -33,7 +33,7 @@ public class HelloController {
     @GetMapping("/api/hello")
     public Map<String, Object> hello() {
         Map<String, Object> data = new HashMap<>();
-        data.put("message", "你好，这里是张书贤的后端");
+        data.put("message", "你好，这里是芹菜的后端");
         data.put("time", LocalDateTime.now().toString());
         data.put("status", "ok");
         return data;
