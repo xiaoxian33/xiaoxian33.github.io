@@ -35,7 +35,8 @@
 
   function postHTML(p) {
     return '<div class="post-wrap">' +
-      '<a class="post" href="#posts">' +
+      // data-open-post = 这张卡片的身份。点击的判定在下面的"事件委托"里统一处理 ✓
+      '<a class="post" href="#posts" data-open-post="' + p.id + '" title="点开看全文">' +
         '<div class="post__meta"><span class="post__date">' + esc(p.date) + '</span></div>' +
         '<h3 class="post__title">' + esc(p.title) + '</h3>' +
         '<p class="post__excerpt">' + esc(p.excerpt) + '</p>' +
@@ -46,6 +47,7 @@
             }).join('') + '</div>'
           : '') +
         '<div class="post__tags">' + p.tags.map(function (t) { return '<span>#' + esc(t) + '</span>'; }).join('') + '</div>' +
+        '<div class="post__more">点击阅读全文 ›</div>' +
       '</a>' +
       // ✏️🗑️ 只有站长看得见（靠 body.owner-mode 控制显隐），点它们不会触发卡片跳转
       '<div class="item-actions">' +
@@ -54,6 +56,91 @@
       '</div>' +
     '</div>';
   }
+
+  /* ---------------------- 📖 帖子详情弹窗 + 🔍 图片放大 ---------------------- */
+
+  var postModal = document.getElementById('postModal');
+  var lightbox  = document.getElementById('lightbox');
+
+  // 正文分段：和随笔一样 —— 段落之间空一行就分段 ✓（单个换行也保留 ✓）
+  function bodyToParas(text) {
+    return String(text || '')
+      .split(/\n\s*\n/)
+      .map(function (p) { return '<p>' + esc(p.trim()).replace(/\n/g, '<br />') + '</p>'; })
+      .join('');
+  }
+
+  function openPostModal(id) {
+    var raw = findRawPost(Number(id));
+    if (!raw || !postModal) return;
+
+    var date = String(raw.publishedAt || '').replace(/-/g, ' · ');
+    document.getElementById('postModalDate').textContent = date;
+    document.getElementById('postModalTitle').textContent = raw.title || '(无标题)';
+    document.getElementById('postModalBody').innerHTML = bodyToParas(raw.body);
+
+    document.getElementById('postModalImages').innerHTML = (raw.images || []).map(function (src) {
+      return '<img src="' + esc(imgUrl(src)) + '" alt="" data-zoom="1" loading="lazy" />';
+    }).join('');
+
+    document.getElementById('postModalTags').innerHTML =
+      String(raw.tags || '').split(',')
+        .map(function (t) { return t.trim(); })
+        .filter(Boolean)
+        .map(function (t) { return '<span>#' + esc(t) + '</span>'; })
+        .join('');
+
+    postModal.hidden = false;
+    document.body.classList.add('modal-open');
+  }
+
+  function closePostModal() {
+    if (postModal) postModal.hidden = true;
+    document.body.classList.remove('modal-open');
+  }
+
+  function openLightbox(src) {
+    if (!lightbox || !src) return;
+    document.getElementById('lightboxImg').src = src;
+    lightbox.hidden = false;
+  }
+
+  function closeLightbox() {
+    if (!lightbox) return;
+    lightbox.hidden = true;
+    document.getElementById('lightboxImg').src = '';
+  }
+
+  // 点击统一处理（事件委托）：卡片 / 图片 / 空白处
+  document.addEventListener('click', function (e) {
+    // ① 点帖子卡片 → 开弹窗（点在卡片上的 ✏️ / 🗑️ 时不算 ✓）
+    var card = e.target.closest('[data-open-post]');
+    if (card && !e.target.closest('[data-edit-post], [data-del-post]')) {
+      e.preventDefault();
+      openPostModal(card.dataset.openPost);
+      return;
+    }
+
+    // ② 点图片 → 放大
+    var zoom = e.target.closest('[data-zoom]');
+    if (zoom) { e.preventDefault(); openLightbox(zoom.getAttribute('src')); return; }
+
+    // ③ 点放大层任意处 → 收起
+    if (e.target === lightbox) { closeLightbox(); return; }
+
+    // ④ 点弹窗外面的灰色区域 → 关弹窗
+    if (e.target === postModal) { closePostModal(); return; }
+  });
+
+  var modalCloseBtn = document.getElementById('postModalClose');
+  if (modalCloseBtn) modalCloseBtn.addEventListener('click', closePostModal);
+
+  // Esc：先关放大图，再关弹窗 ✓
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (lightbox && !lightbox.hidden) { closeLightbox(); return; }
+    if (postModal && !postModal.hidden) closePostModal();
+  });
 
   /* ---------------------- 翻译官：后端的 Post → 页面要的样子 ---------------------- */
   // 后端给的字段和页面想要的【对不上】，所以在中间加这一层转换。
@@ -1040,7 +1127,7 @@
         // 随笔的图：这里拿到的是后端原样数据，所以路径要现场翻译成完整网址
         (e.images && e.images.length
           ? '<div class="entry__images">' + e.images.map(function (src) {
-              return '<img src="' + esc(imgUrl(src)) + '" alt="" loading="lazy" />';
+              return '<img src="' + esc(imgUrl(src)) + '" alt="" data-zoom="1" loading="lazy" />';
             }).join('') + '</div>'
           : '') +
       '</article>' +

@@ -25,10 +25,10 @@
   <!-- ⚠️ 每次改了 css / js，就把 ?v= 后面这个版本号改一下（改日期即可）
        原因：GitHub Pages 会给这些文件设缓存（约 10 分钟）。带上版本号，
        浏览器才会去拿新文件，否则会出现"HTML 是新的、app.js 是旧的"这种错配。 -->
-  <link rel="stylesheet" href="assets/css/style.css?v=20260921a" />
+  <link rel="stylesheet" href="assets/css/style.css?v=20260921b" />
   <!-- 🎨 色系令牌（由主题注册表自动生成）—— 必须在 style.css 之后 ✓
        两边都是"同等优先级"的选择器，所以后加载的那份生效 ✓ -->
-  <link rel="stylesheet" href="assets/css/themes.css?v=20260921a" />
+  <link rel="stylesheet" href="assets/css/themes.css?v=20260921b" />
 </head>
 <body>
 
@@ -613,9 +613,26 @@
     </div>
   </div>
 
+  <!-- ---------- 📖 帖子详情：点卡片打开，占满屏幕中央 ---------- -->
+  <div class="modal" id="postModal" hidden>
+    <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="postModalTitle">
+      <button type="button" class="modal__close" id="postModalClose" title="关闭（Esc）">✕</button>
+      <div class="modal__meta" id="postModalDate"></div>
+      <h2 class="modal__title" id="postModalTitle"></h2>
+      <div class="modal__body" id="postModalBody"></div>
+      <div class="modal__images" id="postModalImages"></div>
+      <div class="modal__tags" id="postModalTags"></div>
+    </div>
+  </div>
+
+  <!-- ---------- 🔍 图片放大：点图片打开，点任意处 / Esc 关闭 ---------- -->
+  <div class="lightbox" id="lightbox" hidden>
+    <img id="lightboxImg" alt="" />
+  </div>
+
   <!-- 保存结果的提示条 -->
   <div class="toast" id="toast" hidden></div>
 
-  <script src="assets/js/app.js?v=20260921a"></script>
+  <script src="assets/js/app.js?v=20260921b"></script>
 </body>
 </html>
