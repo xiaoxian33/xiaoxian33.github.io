@@ -613,15 +613,17 @@
     </div>
   </div>
 
-  <!-- ---------- 📖 帖子详情：点卡片打开，占满屏幕中央 ---------- -->
-  <div class="modal" id="postModal" hidden>
-    <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="postModalTitle">
-      <button type="button" class="modal__close" id="postModalClose" title="关闭（Esc）">✕</button>
-      <div class="modal__meta" id="postModalDate"></div>
-      <h2 class="modal__title" id="postModalTitle"></h2>
-      <div class="modal__body" id="postModalBody"></div>
-      <div class="modal__images" id="postModalImages"></div>
-      <div class="modal__tags" id="postModalTags"></div>
+  <!-- ---------- 📖 帖子详情：点卡片打开，屏幕正中央 ---------- -->
+  <!-- ⚠️ 这里的 class 全用 postmodal__ 前缀 ✓ 不要用 .modal ✗
+       （.modal / .modal__title / .modal__close 是「编辑面板」已经在用的名字 ✓ 撞了会互相覆盖 ✗）-->
+  <div class="postmodal" id="postModal" hidden>
+    <div class="postmodal__box" role="dialog" aria-modal="true" aria-labelledby="postModalTitle">
+      <button type="button" class="postmodal__close" id="postModalClose" title="关闭（Esc）">✕</button>
+      <div class="postmodal__meta" id="postModalDate"></div>
+      <h2 class="postmodal__title" id="postModalTitle"></h2>
+      <div class="postmodal__body" id="postModalBody"></div>
+      <div class="postmodal__images" id="postModalImages"></div>
+      <div class="postmodal__tags" id="postModalTags"></div>
     </div>
   </div>
 

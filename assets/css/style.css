@@ -222,49 +222,52 @@ body.nav-open .main { margin-left: var(--side-open); }
 .appear__btns { display: flex; gap: 6px; }
 
 /* ------------------------------ 📖 帖子详情弹窗 + 🔍 图片放大 ------------------------------ */
-body.modal-open { overflow: hidden; }          /* 弹窗打开时，后面的页面不许滚 ✓ */
+/* ⚠️ class 统一用 postmodal__ 前缀 ✓
+   不要用 .modal / .modal__title / .modal__close ✗ —— 那是「编辑面板」已经在用的名字，
+   两套撞在一起会互相覆盖（我第一版就是这么踩的 ✗）*/
+body.postmodal-open { overflow: hidden; }      /* 弹窗打开时，后面的页面不许滚 ✓ */
 
-.modal {
+.postmodal {
   position: fixed; inset: 0; z-index: 60;
   display: flex; align-items: center; justify-content: center; padding: 22px;
   background: rgba(var(--bg-rgb), .86);
   backdrop-filter: blur(6px);
   animation: fade .22s ease both;
 }
-.modal__box {
+.postmodal__box {
   position: relative; width: min(760px, 100%); max-height: 86vh; overflow: auto;
   background: var(--panel); border: 1px solid var(--line-2); border-radius: 18px;
   padding: 30px 32px 26px;
   box-shadow: 0 24px 70px rgba(var(--shade-rgb), .72), var(--glow-md);
 }
-.modal__close {
+.postmodal__close {
   position: absolute; top: 14px; right: 14px; width: 32px; height: 32px;
   border-radius: 50%; border: 1px solid var(--line); background: var(--bg-2);
   color: var(--muted); font-size: 13px; line-height: 1; cursor: pointer;
   transition: color .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
-.modal__close:hover { color: var(--accent); border-color: var(--accent); box-shadow: var(--glow-sm); }
+.postmodal__close:hover { color: var(--accent); border-color: var(--accent); box-shadow: var(--glow-sm); }
 
-.modal__meta { font-size: 12px; color: var(--ink-5); letter-spacing: .14em; }
-.modal__meta::before { content: "♥ "; color: var(--accent); }
-.modal__title {
+.postmodal__meta { font-size: 12px; color: var(--ink-5); letter-spacing: .14em; }
+.postmodal__meta::before { content: "♥ "; color: var(--accent); }
+.postmodal__title {
   font-family: var(--serif); font-size: 22px; letter-spacing: .04em;
   margin: 8px 0 18px; color: var(--text);
 }
-.modal__body { color: var(--ink-3); font-size: 14.5px; line-height: 2.1; }
-.modal__body p { margin: 0 0 16px; }
-.modal__body p:last-child { margin-bottom: 0; }
+.postmodal__body { color: var(--ink-3); font-size: 14.5px; line-height: 2.1; }
+.postmodal__body p { margin: 0 0 16px; }
+.postmodal__body p:last-child { margin-bottom: 0; }
 
-.modal__images { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
-.modal__images img {
+.postmodal__images { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.postmodal__images img {
   width: 152px; height: 152px; object-fit: cover; border-radius: 12px;
   border: 1px solid var(--line); cursor: zoom-in;
   transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
 }
-.modal__images img:hover { border-color: var(--accent); box-shadow: var(--glow-sm); transform: translateY(-2px); }
+.postmodal__images img:hover { border-color: var(--accent); box-shadow: var(--glow-sm); transform: translateY(-2px); }
 
-.modal__tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
-.modal__tags span {
+.postmodal__tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
+.postmodal__tags span {
   font-size: 11.5px; padding: 2px 10px; border-radius: 999px; color: var(--accent-2);
   border: 1px solid rgba(var(--accent-rgb), .45); background: rgba(var(--accent-rgb), .12);
 }

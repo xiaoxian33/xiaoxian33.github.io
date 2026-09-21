@@ -91,12 +91,12 @@
         .join('');
 
     postModal.hidden = false;
-    document.body.classList.add('modal-open');
+    document.body.classList.add('postmodal-open');
   }
 
   function closePostModal() {
     if (postModal) postModal.hidden = true;
-    document.body.classList.remove('modal-open');
+    document.body.classList.remove('postmodal-open');
   }
 
   function openLightbox(src) {
