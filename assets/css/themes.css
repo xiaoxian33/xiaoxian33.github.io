@@ -1,0 +1,371 @@
+/* ============================================================
+   themes.css —— 站点色系（只做深色）
+   ⚠️ 本文件由主题注册表自动生成，不要手改；
+      改颜色请改 notes\配色预览-主题库.html 里的注册表，然后重新生成 ✓
+   同时会自动生成 --accent-rgb 这类"分量变量"，
+   让全站的 rgba(var(--accent-rgb), .14) 跟着主题一起换 ✓
+   ============================================================ */
+
+/* ---------- 粉 · 地雷系（你现在这套）---------- */
+:root, [data-theme="pink"] {
+  --accent: #ff5fa2;  --accent-2: #ff9ec7;  --accent-deep: #a8214f;
+  --accent-t1: #ffd6e8;  --accent-t3: #fff0f6;  --on-accent: #1a0f16;
+  --accent-rgb: 255, 95, 162;  --accent2-rgb: 255, 158, 199;
+  --wash-rgb: 169, 105, 134;
+  --bg: #0a070c;  --bg-2: #120c14;  --panel: #17101a;
+  --line: #35203c;  --line-2: #4d2d57;
+  --bg-rgb: 10, 7, 12;  --line-rgb: 53, 32, 60;
+  --text: #f6ebf3;  --muted: #b193ad;  --faint: #9b829c;
+  --ink-2: #eadcea;  --ink-3: #d9c6d6;
+  --ink-4: #cbb6c9;  --ink-5: #8f7489;
+  --panel-2: #100b12;
+  --side-1: #2e1828;  --side-2: #190c15;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(10,7,12,.28);
+  --deco: "♡";
+}
+
+/* ---------- 樱 · 淡粉（柔和、不扎眼）---------- */
+[data-theme="sakura"] {
+  --accent: #ffa8c8;  --accent-2: #ffc9dd;  --accent-deep: #b3526f;
+  --accent-t1: #ffe0ec;  --accent-t3: #fff6fa;  --on-accent: #1c1014;
+  --accent-rgb: 255, 168, 200;  --accent2-rgb: 255, 201, 221;
+  --wash-rgb: 170, 133, 147;
+  --bg: #0d0809;  --bg-2: #150f12;  --panel: #1a1317;
+  --line: #3a2430;  --line-2: #52333f;
+  --bg-rgb: 13, 8, 9;  --line-rgb: 58, 36, 48;
+  --text: #f9eff3;  --muted: #b9a0a9;  --faint: #9d848c;
+  --ink-2: #ede3e7;  --ink-3: #ddd3d7;
+  --ink-4: #cfc5c9;  --ink-5: #91898c;
+  --panel-2: #130d0f;
+  --side-1: #312229;  --side-2: #1c1214;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(13,8,9,.28);
+  --deco: "❁";
+}
+
+/* ---------- 酒红 · 夜（浓、成熟）---------- */
+[data-theme="wine"] {
+  --accent: #e6587a;  --accent-2: #f596ac;  --accent-deep: #96203c;
+  --accent-t1: #ffd3dd;  --accent-t3: #fff0f3;  --on-accent: #1b0e12;
+  --accent-rgb: 230, 88, 122;  --accent2-rgb: 245, 150, 172;
+  --wash-rgb: 163, 100, 114;
+  --bg: #0a0607;  --bg-2: #130c0f;  --panel: #180f13;
+  --line: #3a1f28;  --line-2: #522b38;
+  --bg-rgb: 10, 6, 7;  --line-rgb: 58, 31, 40;
+  --text: #fbeef1;  --muted: #bf9aa3;  --faint: #a5828b;
+  --ink-2: #efe2e5;  --ink-3: #ded2d5;
+  --ink-4: #d0c4c7;  --ink-5: #91888a;
+  --panel-2: #100a0c;
+  --side-1: #2d161d;  --side-2: #170b0e;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(10,6,7,.30);
+  --deco: "❤";
+}
+
+/* ---------- 橙 · 落日（热烈）---------- */
+[data-theme="orange"] {
+  --accent: #ff8b4d;  --accent-2: #ffb88a;  --accent-deep: #b8490e;
+  --accent-t1: #ffdec6;  --accent-t3: #fff5ec;  --on-accent: #1f1108;
+  --accent-rgb: 255, 139, 77;  --accent2-rgb: 255, 184, 138;
+  --wash-rgb: 170, 122, 92;
+  --bg: #0b0806;  --bg-2: #15100b;  --panel: #1b140d;
+  --line: #3d2a1a;  --line-2: #563b23;
+  --bg-rgb: 11, 8, 6;  --line-rgb: 61, 42, 26;
+  --text: #fdf3ea;  --muted: #c2a68c;  --faint: #a88d74;
+  --ink-2: #f1e7df;  --ink-3: #e0d7cf;
+  --ink-4: #d1c9c1;  --ink-5: #938c86;
+  --panel-2: #120d09;
+  --side-1: #322013;  --side-2: #1a100a;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(11,8,6,.28);
+  --deco: "☼";
+}
+
+/* ---------- 黄 · 咖啡（暖 · ABD CAFE ☕）---------- */
+[data-theme="amber"] {
+  --accent: #ffb84d;  --accent-2: #ffd79a;  --accent-deep: #b56a00;
+  --accent-t1: #ffe6bd;  --accent-t3: #fff9ef;  --on-accent: #1f1505;
+  --accent-rgb: 255, 184, 77;  --accent2-rgb: 255, 215, 154;
+  --wash-rgb: 170, 143, 102;
+  --bg: #0b0906;  --bg-2: #15100a;  --panel: #1b150d;
+  --line: #3c2d18;  --line-2: #55401f;
+  --bg-rgb: 11, 9, 6;  --line-rgb: 60, 45, 24;
+  --text: #fdf6ea;  --muted: #c2ad8e;  --faint: #a89272;
+  --ink-2: #f1eadf;  --ink-3: #e0dacf;
+  --ink-4: #d1cbc1;  --ink-5: #938e86;
+  --panel-2: #120e09;
+  --side-1: #322513;  --side-2: #1a140a;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(11,9,6,.28);
+  --deco: "☕";
+}
+
+/* ---------- 可可 · 棕（沉稳、手作感）---------- */
+[data-theme="cocoa"] {
+  --accent: #c98a5e;  --accent-2: #e3b494;  --accent-deep: #8a5230;
+  --accent-t1: #f0d6c2;  --accent-t3: #faf3ee;  --on-accent: #1c1108;
+  --accent-rgb: 201, 138, 94;  --accent2-rgb: 227, 180, 148;
+  --wash-rgb: 151, 120, 98;
+  --bg: #0a0806;  --bg-2: #13100c;  --panel: #18130e;
+  --line: #352a1e;  --line-2: #4a3a29;
+  --bg-rgb: 10, 8, 6;  --line-rgb: 53, 42, 30;
+  --text: #f8f0e8;  --muted: #b8a390;  --faint: #9c8774;
+  --ink-2: #ece4dd;  --ink-3: #dbd4cd;
+  --ink-4: #cdc6bf;  --ink-5: #8f8a85;
+  --panel-2: #100d0a;
+  --side-1: #2a1f16;  --side-2: #15100b;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(10,8,6,.30);
+  --deco: "▦";
+}
+
+/* ---------- 绿 · 森林（有生命力）---------- */
+[data-theme="mint"] {
+  --accent: #4ed89a;  --accent-2: #9fecc4;  --accent-deep: #178457;
+  --accent-t1: #c8f6dd;  --accent-t3: #f0fdf6;  --on-accent: #062115;
+  --accent-rgb: 78, 216, 154;  --accent2-rgb: 159, 236, 196;
+  --wash-rgb: 105, 157, 130;
+  --bg: #060a08;  --bg-2: #0b1310;  --panel: #0f1a15;
+  --line: #1e3529;  --line-2: #2b4a39;
+  --bg-rgb: 6, 10, 8;  --line-rgb: 30, 53, 41;
+  --text: #ecfaf3;  --muted: #9dc0ae;  --faint: #86a897;
+  --ink-2: #e1eee7;  --ink-3: #d0ddd7;
+  --ink-4: #c3cfc9;  --ink-5: #87908c;
+  --panel-2: #0a110e;
+  --side-1: #152d22;  --side-2: #0a1611;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(6,10,8,.28);
+  --deco: "❀";
+}
+
+/* ---------- 青柠 · 酸（跳、年轻）---------- */
+[data-theme="lime"] {
+  --accent: #b6e34d;  --accent-2: #d4f08f;  --accent-deep: #6f9410;
+  --accent-t1: #e8f8c2;  --accent-t3: #f8fdee;  --on-accent: #141d05;
+  --accent-rgb: 182, 227, 77;  --accent2-rgb: 212, 240, 143;
+  --wash-rgb: 141, 160, 95;
+  --bg: #080a05;  --bg-2: #10140a;  --panel: #141a0d;
+  --line: #2c3a1a;  --line-2: #405426;
+  --bg-rgb: 8, 10, 5;  --line-rgb: 44, 58, 26;
+  --text: #f3fae8;  --muted: #adc290;  --faint: #93a878;
+  --ink-2: #e7eedd;  --ink-3: #d7ddcd;
+  --ink-4: #c9cfbf;  --ink-5: #8c9084;
+  --panel-2: #0d1109;
+  --side-1: #242e13;  --side-2: #121709;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(8,10,5,.28);
+  --deco: "✳";
+}
+
+/* ---------- 青 · 薄荷汽水（清爽、夏天）---------- */
+[data-theme="cyan"] {
+  --accent: #35d0c8;  --accent-2: #8ae7e1;  --accent-deep: #127f79;
+  --accent-t1: #c2f5f1;  --accent-t3: #eefcfb;  --on-accent: #04201e;
+  --accent-rgb: 53, 208, 200;  --accent2-rgb: 138, 231, 225;
+  --wash-rgb: 91, 153, 150;
+  --bg: #05090b;  --bg-2: #0a1215;  --panel: #0d1a1e;
+  --line: #1b3440;  --line-2: #264a5a;
+  --bg-rgb: 5, 9, 11;  --line-rgb: 27, 52, 64;
+  --text: #e9f7f6;  --muted: #93b8b6;  --faint: #7fa3a2;
+  --ink-2: #deebea;  --ink-3: #cedada;
+  --ink-4: #c0cccc;  --ink-5: #858e8f;
+  --panel-2: #091114;
+  --side-1: #112c2f;  --side-2: #081516;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(5,9,11,.28);
+  --deco: "◇";
+}
+
+/* ---------- 青碧 · 湖（安静但有颜色）---------- */
+[data-theme="teal"] {
+  --accent: #2bb6a5;  --accent-2: #7de0d2;  --accent-deep: #0d7a6d;
+  --accent-t1: #c2f0ea;  --accent-t3: #effaf8;  --on-accent: #06201c;
+  --accent-rgb: 43, 182, 165;  --accent2-rgb: 125, 224, 210;
+  --wash-rgb: 83, 149, 140;
+  --bg: #050a09;  --bg-2: #0a1312;  --panel: #0d1a18;
+  --line: #1b3531;  --line-2: #264a44;
+  --bg-rgb: 5, 10, 9;  --line-rgb: 27, 53, 49;
+  --text: #e8f6f3;  --muted: #93b8b1;  --faint: #7da39c;
+  --ink-2: #ddeae7;  --ink-3: #cddad7;
+  --ink-4: #bfccc9;  --ink-5: #848e8c;
+  --panel-2: #091110;
+  --side-1: #102a26;  --side-2: #071412;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(5,10,9,.28);
+  --deco: "≋";
+}
+
+/* ---------- 蓝 · 清透（冷静、可信（最"技术"））---------- */
+[data-theme="blue"] {
+  --accent: #4d9dff;  --accent-2: #9cc6ff;  --accent-deep: #1f5fbf;
+  --accent-t1: #cfe4ff;  --accent-t3: #f2f8ff;  --on-accent: #08131f;
+  --accent-rgb: 77, 157, 255;  --accent2-rgb: 156, 198, 255;
+  --wash-rgb: 104, 132, 171;
+  --bg: #070a0f;  --bg-2: #0c121a;  --panel: #101823;
+  --line: #20324a;  --line-2: #2d4667;
+  --bg-rgb: 7, 10, 15;  --line-rgb: 32, 50, 74;
+  --text: #eef3ff;  --muted: #9fb0c9;  --faint: #8299b3;
+  --ink-2: #e2e7f3;  --ink-3: #d2d7e2;
+  --ink-4: #c4c9d4;  --ink-5: #888c95;
+  --panel-2: #0b1018;
+  --side-1: #162539;  --side-2: #0b131d;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(7,10,15,.28);
+  --deco: "❄";
+}
+
+/* ---------- 靛 · 夜空（深、有重量）---------- */
+[data-theme="indigo"] {
+  --accent: #6b7cff;  --accent-2: #a8b3ff;  --accent-deep: #3540bf;
+  --accent-t1: #d5daff;  --accent-t3: #f2f4ff;  --on-accent: #0a0d1f;
+  --accent-rgb: 107, 124, 255;  --accent2-rgb: 168, 179, 255;
+  --wash-rgb: 112, 119, 171;
+  --bg: #07070f;  --bg-2: #0c0d1a;  --panel: #101223;
+  --line: #22264a;  --line-2: #303667;
+  --bg-rgb: 7, 7, 15;  --line-rgb: 34, 38, 74;
+  --text: #eef0ff;  --muted: #9fa5c9;  --faint: #848ab3;
+  --ink-2: #e2e4f3;  --ink-3: #d2d4e2;
+  --ink-4: #c4c6d4;  --ink-5: #888995;
+  --panel-2: #0b0c18;
+  --side-1: #191d39;  --side-2: #0d0e1d;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(7,7,15,.30);
+  --deco: "❖";
+}
+
+/* ---------- 紫 · 夜色（神秘、有距离感）---------- */
+[data-theme="violet"] {
+  --accent: #b07cff;  --accent-2: #d5baff;  --accent-deep: #6a35c4;
+  --accent-t1: #e3d3ff;  --accent-t3: #f7f3ff;  --on-accent: #150b22;
+  --accent-rgb: 176, 124, 255;  --accent2-rgb: 213, 186, 255;
+  --wash-rgb: 142, 123, 170;
+  --bg: #09060d;  --bg-2: #120c1a;  --panel: #170f22;
+  --line: #33204a;  --line-2: #472d67;
+  --bg-rgb: 9, 6, 13;  --line-rgb: 51, 32, 74;
+  --text: #f3ecff;  --muted: #ad9cc9;  --faint: #9583b3;
+  --ink-2: #e7e1f3;  --ink-3: #d7d0e2;
+  --ink-4: #c9c3d3;  --ink-5: #8c8795;
+  --panel-2: #0f0a16;
+  --side-1: #261a38;  --side-2: #130d1c;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(9,6,13,.30);
+  --deco: "✦";
+}
+
+/* ---------- 灰 · 素（最安静、内容为主）---------- */
+[data-theme="slate"] {
+  --accent: #adb8c7;  --accent-2: #d7dee7;  --accent-deep: #5c6774;
+  --accent-t1: #dde3ea;  --accent-t3: #f4f6f8;  --on-accent: #0f1318;
+  --accent-rgb: 173, 184, 199;  --accent2-rgb: 215, 222, 231;
+  --wash-rgb: 143, 147, 154;
+  --bg: #09090b;  --bg-2: #101014;  --panel: #15151a;
+  --line: #2c2c34;  --line-2: #3f3f4a;
+  --bg-rgb: 9, 9, 11;  --line-rgb: 44, 44, 52;
+  --text: #f0f2f5;  --muted: #a3a9b4;  --faint: #8c929c;
+  --ink-2: #e4e6e9;  --ink-3: #d4d6d9;
+  --ink-4: #c6c8cb;  --ink-5: #8a8b8e;
+  --panel-2: #0e0e12;
+  --side-1: #24252b;  --side-2: #131416;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(9,9,11,.30);
+  --deco: "⌗";
+}
+
+/* ---------- 米 · 纸（暖白、像信纸）---------- */
+[data-theme="cream"] {
+  --accent: #d9b382;  --accent-2: #e9d0ad;  --accent-deep: #9a7538;
+  --accent-t1: #f2e2ca;  --accent-t3: #faf6ef;  --on-accent: #1e1608;
+  --accent-rgb: 217, 179, 130;  --accent2-rgb: 233, 208, 173;
+  --wash-rgb: 156, 139, 115;
+  --bg: #0c0a08;  --bg-2: #14110d;  --panel: #1a160f;
+  --line: #38301f;  --line-2: #4e4229;
+  --bg-rgb: 12, 10, 8;  --line-rgb: 56, 48, 31;
+  --text: #fbf6ec;  --muted: #c3b49a;  --faint: #a89a80;
+  --ink-2: #efeae1;  --ink-3: #dedad1;
+  --ink-4: #d0ccc3;  --ink-5: #928e88;
+  --panel-2: #120f0b;
+  --side-1: #2d261b;  --side-2: #18140f;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(12,10,8,.30);
+  --deco: "✿";
+}
+
+/* ---------- 赛博 · 霓虹（荧光绿（和药箱项目一个气质））---------- */
+[data-theme="neon"] {
+  --accent: #39ff9e;  --accent-2: #8cffc8;  --accent-deep: #0f9c5a;
+  --accent-t1: #c2ffdf;  --accent-t3: #f0fff8;  --on-accent: #04190f;
+  --accent-rgb: 57, 255, 158;  --accent2-rgb: 140, 255, 200;
+  --wash-rgb: 92, 169, 134;
+  --bg: #04080a;  --bg-2: #081114;  --panel: #0a1619;
+  --line: #123039;  --line-2: #1a4a56;
+  --bg-rgb: 4, 8, 10;  --line-rgb: 18, 48, 57;
+  --text: #e8fffa;  --muted: #90c9bd;  --faint: #7aada3;
+  --ink-2: #ddf3ee;  --ink-3: #cde1dd;
+  --ink-4: #bfd3cf;  --ink-5: #849290;
+  --panel-2: #070e11;
+  --side-1: #0f2d26;  --side-2: #071713;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(4,8,10,.30);
+  --deco: "⚡";
+}
+
+/* ---------- 黑白 · 极简（完全没有颜色）---------- */
+[data-theme="mono"] {
+  --accent: #ffffff;  --accent-2: #d4d4d4;  --accent-deep: #9a9a9a;
+  --accent-t1: #ececec;  --accent-t3: #fafafa;  --on-accent: #0a0a0a;
+  --accent-rgb: 255, 255, 255;  --accent2-rgb: 212, 212, 212;
+  --wash-rgb: 141, 141, 141;
+  --bg: #08080a;  --bg-2: #0f0f12;  --panel: #141418;
+  --line: #2a2a30;  --line-2: #3d3d45;
+  --bg-rgb: 8, 8, 10;  --line-rgb: 42, 42, 48;
+  --text: #fafafa;  --muted: #a8a8b0;  --faint: #8e8e96;
+  --ink-2: #eeeeee;  --ink-3: #dddddd;
+  --ink-4: #cececf;  --ink-5: #909090;
+  --panel-2: #0d0d10;
+  --side-1: #2c2c2f;  --side-2: #171719;
+  --glow-sm: 0 0 0 6px rgba(var(--accent-rgb), .14);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), .35);
+  --glow-lg: 0 0 70px rgba(var(--accent-rgb), .22);
+  --veil: rgba(0,0,0,.34);
+  --deco: "◼";
+}
+
+/* 全主题共用的中性分量 */
+:root {
+  --shade-rgb: 0, 0, 0;
+  --light-rgb: 255, 255, 255;
+  --pure: #ffffff;
+}

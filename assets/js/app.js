@@ -469,12 +469,16 @@
       intro:   document.getElementById('profileIntro').value.trim(),
       github:  document.getElementById('profileGithub').value.trim()
     };
+    // 🖼️ 这次换了头像 / 背景的话，把新路径一起带上 ✓（没换就一个字段都不发 ✓）
+    if (appearPatch.avatarPath) patch.avatarPath = appearPatch.avatarPath;
+    if (appearPatch.heroPath)   patch.heroPath   = appearPatch.heroPath;
 
     var btn = document.getElementById('profileSave');
     setBusy(btn, true);
     apiSaveProfile(patch)
       .then(function () {
         showToast('资料已更新 ✓');
+        appearPatch = {};                   // 已经写进数据库了，清掉"待保存" ✓
         closeEditor();
         loadProfile();                      // 首页的名字 / 简介立刻变
       })
@@ -490,7 +494,110 @@
     set('profileTagline', currentProfile.tagline);
     set('profileIntro', currentProfile.intro);
     set('profileGithub', currentProfile.github);
+
+    drawThemePicker(currentProfile.theme);   // 🎨 色系缩略图（当前那套高亮 ✓）
+    fillAppearPreviews();                    // 🖼️ 头像 / 背景的预览
   }
+
+  /* ---------------------- 🎨 站点外观：色系 / 头像 / 背景 ---------------------- */
+
+  // 色系列表：id 必须和 assets/css/themes.css 里的 [data-theme="…"] 完全一致 ✓
+  var THEME_LIST = [
+    { id: 'pink',   name: '粉' },   { id: 'sakura', name: '樱' },   { id: 'wine',   name: '酒红' },
+    { id: 'orange', name: '橙' },   { id: 'amber',  name: '黄' },   { id: 'cocoa',  name: '可可' },
+    { id: 'mint',   name: '绿' },   { id: 'lime',   name: '青柠' }, { id: 'cyan',   name: '青' },
+    { id: 'teal',   name: '青碧' }, { id: 'blue',   name: '蓝' },   { id: 'indigo', name: '靛' },
+    { id: 'violet', name: '紫' },   { id: 'slate',  name: '灰' },   { id: 'cream',  name: '米' },
+    { id: 'neon',   name: '霓虹' }, { id: 'mono',   name: '黑白' }
+  ];
+
+  function themeName(id) {
+    for (var i = 0; i < THEME_LIST.length; i += 1) if (THEME_LIST[i].id === id) return THEME_LIST[i].name;
+    return id;
+  }
+
+  // 把色系写到 <html data-theme="…"> —— 全站颜色立刻跟着换 ✓（只重算颜色，不重排、不重载）
+  function applyTheme(theme) {
+    var id = theme || 'pink';
+    var known = false;
+    for (var i = 0; i < THEME_LIST.length; i += 1) if (THEME_LIST[i].id === id) known = true;
+    if (!known) id = 'pink';                 // 数据库里存了个不认识的名字 → 回落到粉色 ✓
+
+    document.documentElement.setAttribute('data-theme', id);
+    try { localStorage.setItem('site.theme', id); } catch (e) { /* 无痕模式忽略 ✓ */ }
+
+    // 顺手告诉手机浏览器：地址栏也用这个底色 ✓
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      var bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+      if (bg) meta.setAttribute('content', bg);
+    }
+  }
+
+  // 画色系缩略图：每个按钮自带 data-theme → 方块是用【那套主题自己的变量】画的 ✓
+  function drawThemePicker(current) {
+    var box = document.getElementById('themePick');
+    if (!box) return;
+    var active = current || 'pink';
+    box.innerHTML = THEME_LIST.map(function (t) {
+      return '<button type="button" class="themepick__item' + (t.id === active ? ' is-active' : '') +
+        '" data-theme="' + t.id + '" data-pick-theme="' + t.id + '" title="' + t.name + ' 色系">' +
+        '<span class="themepick__dot"></span>' +
+        '<span class="themepick__name">' + t.name + '</span>' +
+        '</button>';
+    }).join('');
+  }
+
+  // 点一下色系 → 立刻生效 + 顺手存进数据库（不用再点「保存」✓）
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-pick-theme]');
+    if (!btn) return;
+    var id = btn.dataset.pickTheme;
+
+    applyTheme(id);                 // 先让眼睛看到 ✓
+    drawThemePicker(id);            // 再更新选中态 ✓
+    if (currentProfile) currentProfile.theme = id;
+
+    apiSaveProfile({ theme: id })
+      .then(function () { showToast('已换成「' + themeName(id) + '」色系 ✓'); })
+      .catch(function (err) { showToast('色系没存上：' + err.message, true); });
+  });
+
+  // 头像 / 背景：选完就上传 → 路径先记在 appearPatch，等点「保存」一起写 ✓
+  var appearPatch = {};      // { avatarPath?: '…', heroPath?: '…' }
+
+  function fillAppearPreviews() {
+    var a = document.getElementById('profileAvatarPreview');
+    var h = document.getElementById('profileHeroPreview');
+    if (!currentProfile) return;
+    if (a) a.src = imgUrl(appearPatch.avatarPath || currentProfile.avatarPath || 'assets/img/avatar.jpg');
+    if (h) h.src = imgUrl(appearPatch.heroPath || currentProfile.heroPath || 'assets/img/hero-v4.jpg');
+  }
+
+  function wireAppearPick(inputId, btnId, field) {
+    var input = document.getElementById(inputId);
+    var btn = document.getElementById(btnId);
+    if (!input || !btn) return;
+
+    btn.addEventListener('click', function () { input.click(); });
+
+    input.addEventListener('change', function () {
+      var file = input.files && input.files[0];
+      if (!file) return;
+      setBusy(btn, true);
+      apiUploadImage(file)
+        .then(function (res) {
+          appearPatch[field] = res.path;   // ← 记下新路径
+          fillAppearPreviews();            // 立刻看到 ✓
+          showToast('图片已上传 ✓ 再点「保存」写入站里');
+        })
+        .catch(function (err) { showToast('上传失败：' + err.message, true); })
+        .then(function () { setBusy(btn, false); input.value = ''; });
+    });
+  }
+
+  wireAppearPick('profileAvatarInput', 'profileAvatarAdd', 'avatarPath');
+  wireAppearPick('profileHeroInput',   'profileHeroAdd',   'heroPath');
 
   /* ---------------------- ④ 改 / 删已有的内容 ---------------------- */
   // 记住"现在正在改哪一条"：null = 新建（新建用 POST，改就用 PUT）

@@ -39,6 +39,8 @@ public class ProfileAdminController {
         if (form.avatarPath() != null) profile.setAvatarPath(form.avatarPath());
         if (form.heroPath() != null) profile.setHeroPath(form.heroPath());
         if (form.github() != null) profile.setGithub(form.github());
+        // 只改主题时，前端只发一个 { "theme": "blue" } 就行 —— 其他字段是 null，会被跳过 ✓
+        if (form.theme() != null) profile.setTheme(form.theme());
 
         profile.setUpdatedAt(LocalDateTime.now());
         return repository.save(profile);

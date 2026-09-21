@@ -576,37 +576,10 @@
             <span class="field__label">GitHub</span>
             <input class="field__input" type="text" id="profileGithub" maxlength="300" placeholder="https://github.com/xiaoxian33" />
           </label>
-
-          <!-- ---------- 🎨 站点外观：色系 + 头像 + 背景图 ---------- -->
-          <div class="field">
-            <span class="field__label">站点外观<span class="field__opt">（色系 · 头像 · 背景图）</span></span>
-            <p class="appear__hint">点色系会<b>立刻生效并保存</b> ✓ 每个小方块用的就是那套主题的真实配色 ✓</p>
-            <div class="themepick" id="themePick"></div>
-
-            <div class="appear">
-              <div class="appear__slot">
-                <span class="appear__cap">头像</span>
-                <img class="appear__img" id="profileAvatarPreview" alt="" />
-                <div class="appear__btns">
-                  <button type="button" class="btn-sm btn-sm--ghost" id="profileAvatarAdd">🖼️ 选图</button>
-                </div>
-                <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp,image/gif" hidden />
-              </div>
-              <div class="appear__slot">
-                <span class="appear__cap">背景图</span>
-                <img class="appear__img appear__img--wide" id="profileHeroPreview" alt="" />
-                <div class="appear__btns">
-                  <button type="button" class="btn-sm btn-sm--ghost" id="profileHeroAdd">🖼️ 选图</button>
-                </div>
-                <input type="file" id="profileHeroInput" accept="image/jpeg,image/png,image/webp,image/gif" hidden />
-              </div>
-            </div>
-          </div>
-
           <div class="form__actions">
             <button type="button" class="btn-sm" id="profileSave">保存</button>
           </div>
-          <p class="form__note">🎨 色系点一下就用；头像 / 背景选完会上传，随「保存」一起写入 ✓</p>
+          <p class="form__note">🖼️ 头像 / 背景图：等图片上传做好后再加在这里。</p>
         </section>
 
       </div>
@@ -616,6 +589,6 @@
   <!-- 保存结果的提示条 -->
   <div class="toast" id="toast" hidden></div>
 
-  <script src="assets/js/app.js?v=20260921a"></script>
-</body>
+  <script src="assets/js/app.js?v=20260920a"></script>
+<script>window.addEventListener('load',function(){setTimeout(function(){var sels=['body','.side','.hero','.hero__veil','.avatar','.hero__name','.hero__tagline','.hero__intro','.hero__chips span','.lace','.post','.post__title','.post__excerpt','.post__tags span','.entry','.entry__date','.entry__body','.sec__title','.item','.foot','a','.nav__item','.field__input','.iconbtn','.gate','.tl__item','.sect__t'];var out=[];sels.forEach(function(s){var e=document.querySelector(s);if(!e){out.push(s+'=ABSENT');return}var c=getComputedStyle(e);out.push(s+'|bg:'+c.backgroundColor+'|c:'+c.color+'|bd:'+c.borderTopColor+'|sh:'+String(c.boxShadow).slice(0,30)+'|ts:'+String(c.textShadow).slice(0,30))});var d=document.createElement('pre');d.id='snap';d.textContent='SNAPSHOT::'+out.join(' ~~ ');document.body.appendChild(d)},700)})</script></body>
 </html>

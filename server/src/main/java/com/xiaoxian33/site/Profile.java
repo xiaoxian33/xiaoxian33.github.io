@@ -51,6 +51,14 @@ public class Profile {
     @Column(length = 300)
     private String github;
 
+    /**
+     * 站点色系：对应 assets/css/themes.css 里的 [data-theme="…"]
+     * 例如 pink / sakura / blue / mint …（17 套，站长在后台「站点外观」里选）
+     * 留空时前端会回落到 pink ✓
+     */
+    @Column(length = 20)
+    private String theme;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -113,6 +121,14 @@ public class Profile {
 
     public void setGithub(String github) {
         this.github = github;
+    }
+
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(String theme) {
+        this.theme = theme;
     }
 
     public LocalDateTime getUpdatedAt() {

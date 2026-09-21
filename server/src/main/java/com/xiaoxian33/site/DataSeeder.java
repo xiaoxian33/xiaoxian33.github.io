@@ -119,6 +119,9 @@ public class DataSeeder implements CommandLineRunner {
         profile.setAvatarPath("assets/img/avatar.jpg");
         profile.setHeroPath("assets/img/hero-v4.jpg");
         profile.setGithub("https://github.com/xiaoxian33");
+        // 默认色系 = 粉 · 地雷系（就是这个站原来的样子 ✓）
+        // 站长在后台「🎨 站点外观」里可以换成 themes.css 里的任意一套 ✓
+        profile.setTheme("pink");
         profile.setUpdatedAt(LocalDateTime.now());
 
         profileRepository.save(profile);

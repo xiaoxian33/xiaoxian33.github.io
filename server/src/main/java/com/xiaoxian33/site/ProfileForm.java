@@ -11,5 +11,7 @@ public record ProfileForm(
         String intro,
         String avatarPath,
         String heroPath,
-        String github) {
+        String github,
+        /** 站点色系（pink / blue / mint …）—— 后台「🎨 站点外观」里选 ✓ */
+        String theme) {
 }
