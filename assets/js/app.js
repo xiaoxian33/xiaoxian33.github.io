@@ -985,6 +985,10 @@
     var avatar = document.getElementById('heroAvatar');
     if (avatar && p.avatarPath) avatar.src = p.avatarPath;
 
+    // 🎨 站长的色系：全站生效（数据库说了算 ✓）
+    //    index.html 里的防闪脚本会先用缓存画一遍，这里再"确认"一次 ✓
+    applyTheme(p.theme);
+
     // 顶部大图：CSS 里用的是 background 简写，这里只覆盖 background-image 就够
     // （位置 / 大小 / 是否重复这些仍然沿用 CSS 里的设置）
     var hero = document.getElementById('hero');
