@@ -4,6 +4,7 @@
 原生 HTML/CSS/JS 前端 + Spring Boot / MySQL 后端，写接口由令牌统一鉴权。
 
 **上线地址**：http://47.107.76.13 —— 前端 + 后端 + MySQL 都在一台云服务器上（Ubuntu 24.04 · Nginx · systemd）
+**自有域名**：xiaoxian33.cn（已购买 · 备案中；备案通过后换域名，前端零改动）
 **前端镜像**：https://xiaoxian33.github.io （GitHub Pages，同一份前端代码）
 
 ## 项目简介
