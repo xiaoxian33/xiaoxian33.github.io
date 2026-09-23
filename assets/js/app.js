@@ -1182,8 +1182,14 @@
         box.innerHTML = list.map(essayHTML).join('');
       })
       .catch(function (err) {
-        // 请求失败时【不覆盖】页面 —— 让 HTML 里写好的旧内容继续顶着
-        console.warn('[essays] 没拿到随笔，继续用页面里写好的内容：', err);
+        // 请求失败时：如果页面里还只有「正在加载……」（说明一次都没成功过）→ 给一句人话 ✓
+        // ⚠️ 注意：这里【不再】保留写死在 HTML 里的随笔 ✗
+        //    （私人文字的副本不该出现在页面上，也不该出现在公开仓库里 ✓）
+        console.warn('[essays] 没拿到随笔：', err);
+        var box = document.getElementById('essayList');
+        if (box && box.querySelector('.faint')) {
+          box.innerHTML = '<div class="empty"><span class="empty__mark">♡</span>没连上后台，稍后刷新试试</div>';
+        }
       });
   }
 
