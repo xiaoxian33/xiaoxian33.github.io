@@ -15,6 +15,7 @@ public record EssayView(
         String title,
         String body,
         Integer sortOrder,
+        String visibility,
         List<String> images
 ) {
     public static EssayView of(Essay essay, List<String> images) {
@@ -24,6 +25,7 @@ public record EssayView(
                 essay.getTitle(),
                 essay.getBody(),
                 essay.getSortOrder(),
+                essay.isPrivate() ? "private" : "public",
                 images);
     }
 }

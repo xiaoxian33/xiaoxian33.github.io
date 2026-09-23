@@ -15,5 +15,10 @@ import java.util.List;
  *
  * 🖼️ images 规则和发帖一样：不带 = 不动图片，带 [] = 清空，带列表 = 整条替换。
  */
-public record EssayForm(LocalDate writtenOn, String title, String body, List<String> images) {
+public record EssayForm(LocalDate writtenOn, String title, String body, List<String> images,
+                        /**
+                         * 🔒 可见性："private" = 仅自己可见；"public" = 公开；null = 这次不改它 ✓
+                         * 所以"只切换可见性"时，前端只发 { "visibility": "private" } 就够了 ✓
+                         */
+                        String visibility) {
 }

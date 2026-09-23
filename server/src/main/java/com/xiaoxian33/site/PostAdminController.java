@@ -40,7 +40,9 @@ public class PostAdminController {
     @PostMapping
     public PostView create(@RequestBody PostForm form) {
         LocalDate date = form.publishedAt() != null ? form.publishedAt() : LocalDate.now();
-        Post saved = repository.save(new Post(form.title(), form.body(), form.tags(), date));
+        Post post = new Post(form.title(), form.body(), form.tags(), date);
+        if (form.visibility() != null) post.setVisibility(form.visibility());   // 🔒 新建时就能设 ✓
+        Post saved = repository.save(post);
 
         if (form.images() != null) {
             images.replace(ImageService.POST, saved.getId(), form.images());
@@ -57,6 +59,8 @@ public class PostAdminController {
                     if (form.body() != null) post.setBody(form.body());
                     post.setTags(form.tags());
                     if (form.publishedAt() != null) post.setPublishedAt(form.publishedAt());
+                    // 🔒 只切换"仅自己可见"时，前端只发 { "visibility": "private" } 就行 ✓
+                    if (form.visibility() != null) post.setVisibility(form.visibility());
                     Post saved = repository.save(post);
 
                     if (form.images() != null) {

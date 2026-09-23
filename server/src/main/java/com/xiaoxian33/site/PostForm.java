@@ -14,5 +14,7 @@ import java.util.List;
  *   它是"整条提交"里的成员：改帖时不带 images → 图片保持原样；
  *   带 images: [] → 等于把图都删掉。想加图就得把老图一起带上。
  */
-public record PostForm(String title, String body, String tags, LocalDate publishedAt, List<String> images) {
+public record PostForm(String title, String body, String tags, LocalDate publishedAt, List<String> images,
+                       /** 🔒 可见性："private" = 仅自己可见；null = 这次不改它 ✓ */
+                       String visibility) {
 }

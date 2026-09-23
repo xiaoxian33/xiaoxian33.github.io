@@ -25,7 +25,7 @@
   <!-- ⚠️ 每次改了 css / js，就把 ?v= 后面这个版本号改一下（改日期即可）
        原因：GitHub Pages 会给这些文件设缓存（约 10 分钟）。带上版本号，
        浏览器才会去拿新文件，否则会出现"HTML 是新的、app.js 是旧的"这种错配。 -->
-  <link rel="stylesheet" href="assets/css/style.css?v=20260921c" />
+  <link rel="stylesheet" href="assets/css/style.css?v=20260921d" />
   <!-- 🎨 色系令牌（由主题注册表自动生成）—— 必须在 style.css 之后 ✓
        两边都是"同等优先级"的选择器，所以后加载的那份生效 ✓ -->
   <link rel="stylesheet" href="assets/css/themes.css?v=20260921c" />
@@ -214,23 +214,6 @@
           <div class="item"><b>折腾</b><span>喜欢一点点把自己的小网站养大，看着它长出新功能</span></div>
           <div class="item"><b>记录</b><span>习惯把「今天卡在哪、怎么解决」写下来；Cyber-Tunnel 那份安全改造笔记就是这么攒的</span></div>
         </div>
-
-        <details class="fold">
-          <summary>⚠️ 关于我的另一面（包含精神健康与用药经历，点开前请先照顾好自己）</summary>
-          <div class="fold__body">
-            <p>我有<b>双相情感障碍</b>，现在在认真治疗中。</p>
-            <p><b>躁期</b>的我：想和所有人建立联系，想到什么就立马去做 —— Cyber-Tunnel 和这个小站，都是在躁期里做完的。</p>
-            <p><b>郁期</b>的我：只能维持最基本的人形，能把自己保住，就已经用尽全力了。</p>
-            <p>烟瘾很重，喜欢纯境。<br />
-               也会 OD，但只碰 DXM、PR80、美金刚 —— 不碰 RC，也绝不碰硬毒品。</p>
-            <p>正因为我最清楚「记录用药」有多重要，我才写了那个全栈项目来记录自己的用药情况。想看的话去
-               <a href="#projects" data-view="projects">做过的项目</a> 页。</p>
-            <p class="fold__warn">
-              如果你也在经历类似的事：请去看医生，不要一个人硬扛；紧急情况请拨打 120。<br />
-              这里只记录我自己的经历，不提供任何用药建议。
-            </p>
-          </div>
-        </details>
       </section>
     </section>
 
@@ -504,6 +487,10 @@
             <span class="field__label">正文<span class="field__req">必填</span></span>
             <textarea class="field__input field__input--area" id="postBody" rows="7" placeholder="随便写点什么……"></textarea>
           </label>
+          <label class="field field--check" for="postPrivate">
+            <input type="checkbox" id="postPrivate" />
+            <span>🔒 仅自己可见<span class="field__opt">（勾上后只有你登录站长模式才看得到 ✓ 陌生人、爬虫都拿不到 ✓）</span></span>
+          </label>
           <label class="field" for="postTags">
             <span class="field__label">标签<span class="field__opt">（用逗号隔开）</span></span>
             <input class="field__input" type="text" id="postTags" maxlength="200" placeholder="学习,Spring,前端" />
@@ -542,6 +529,10 @@
           <label class="field" for="essayBody">
             <span class="field__label">正文<span class="field__req">必填</span></span>
             <textarea class="field__input field__input--area" id="essayBody" rows="8" placeholder="段落之间空一行，页面上就会分段"></textarea>
+          </label>
+          <label class="field field--check" for="essayPrivate">
+            <input type="checkbox" id="essayPrivate" />
+            <span>🔒 仅自己可见<span class="field__opt">（勾上后只有你登录站长模式才看得到 ✓ 面试官、爬虫都拿不到 ✓）</span></span>
           </label>
           <div class="field">
             <span class="field__label">图片<span class="field__opt">（可选，能选多张；单张 ≤ 5MB）</span></span>
@@ -635,6 +626,6 @@
   <!-- 保存结果的提示条 -->
   <div class="toast" id="toast" hidden></div>
 
-  <script src="assets/js/app.js?v=20260921c"></script>
+  <script src="assets/js/app.js?v=20260921d"></script>
 </body>
 </html>

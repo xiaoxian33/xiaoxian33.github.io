@@ -37,7 +37,8 @@
     return '<div class="post-wrap">' +
       // data-open-post = 这张卡片的身份。点击的判定在下面的"事件委托"里统一处理 ✓
       '<a class="post" href="#posts" data-open-post="' + p.id + '" title="点开看全文">' +
-        '<div class="post__meta"><span class="post__date">' + esc(p.date) + '</span></div>' +
+        '<div class="post__meta"><span class="post__date">' + esc(p.date) + '</span>' +
+          (p.isPrivate ? '<span class="lock">🔒 仅自己可见</span>' : '') + '</div>' +
         '<h3 class="post__title">' + esc(p.title) + '</h3>' +
         '<p class="post__excerpt">' + esc(p.excerpt) + '</p>' +
         // 有图就把图排出来（图片地址在 postFromApi 里已经翻译成完整网址了）
@@ -168,6 +169,7 @@
   function postFromApi(p) {
     return {
       id: p.id,                                                  // ← 改 / 删要靠它认人
+      isPrivate: p.visibility === 'private',                      // 🔒 仅自己可见（后端按令牌决定的 ✓）
       images: (p.images || []).map(imgUrl),                       // ← 图片：相对路径 → 完整网址
       date: String(p.publishedAt || '').replace(/-/g, ' · '),  // 2026-09-12 → 2026 · 09 · 12
       title: p.title || '(无标题)',
@@ -501,6 +503,8 @@
       tags: document.getElementById('postTags').value.trim(),
       images: formImages.post       // 图片路径，顺序就是页面上的顺序
     };
+    // 🔒 勾了「仅自己可见」就发 private ✓ —— 公开接口从此不再返回它 ✓
+    data.visibility = document.getElementById('postPrivate').checked ? 'private' : 'public';
     var date = document.getElementById('postPublishedAt').value;
     if (date) data.publishedAt = date;      // 不填就【不发】这个字段 → 后端自动用今天
 
@@ -529,6 +533,8 @@
       body: body,
       images: formImages.essay
     };
+    // 🔒 勾了「仅自己可见」就发 private ✓ —— 这是这次"把私人随笔藏起来"的那个开关 ✓
+    data.visibility = document.getElementById('essayPrivate').checked ? 'private' : 'public';
     var date = document.getElementById('essayWrittenOn').value;
     if (date) data.writtenOn = date;
 
@@ -729,6 +735,7 @@
     document.getElementById('postBody').value = raw.body || '';
     document.getElementById('postTags').value = raw.tags || '';
     document.getElementById('postPublishedAt').value = raw.publishedAt || '';
+    document.getElementById('postPrivate').checked = (raw.visibility === 'private');
     formImages.post = (raw.images || []).slice();   // 现有图片先摆进"选图区"
     drawImages('post');
     showEditNote('postEditNote', true);
@@ -746,6 +753,7 @@
     document.getElementById('essayWrittenOn').value = raw.writtenOn || '';
     document.getElementById('essayTitle').value = raw.title || '';
     document.getElementById('essayBody').value = raw.body || '';
+    document.getElementById('essayPrivate').checked = (raw.visibility === 'private');
     formImages.essay = (raw.images || []).slice();
     drawImages('essay');
     showEditNote('essayEditNote', true);
@@ -1122,7 +1130,8 @@
 
     return '<div class="entry-wrap">' +
       '<article class="entry">' +
-        '<div class="entry__date">' + esc(date) + '</div>' +
+        '<div class="entry__date">' + esc(date) +
+        (e.visibility === 'private' ? ' <span class="lock">🔒 仅自己可见</span>' : '') + '</div>' +
         '<div class="entry__body">' + paras + '</div>' +
         // 随笔的图：这里拿到的是后端原样数据，所以路径要现场翻译成完整网址
         (e.images && e.images.length
@@ -1139,8 +1148,21 @@
     '</div>';
   }
 
+  /**
+   * 公开接口也把令牌带上（本地有的话）✓
+   * 为什么：后端现在是"看令牌决定给不给你 private 的内容"✓
+   *   没令牌（面试官 / 爬虫）→ 只有 public ✓
+   *   有令牌（你自己）    → 连 🔒 的那些也给你 ✓
+   */
+  function publicFetch(path) {
+    var opts = {};
+    var t = readToken();
+    if (t) opts.headers = { 'Authorization': 'Bearer ' + t };
+    return fetch(API_BASE + path, opts);
+  }
+
   function loadEssays() {
-    fetch(API_BASE + '/api/essays')
+    publicFetch('/api/essays')
       .then(function (res) {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return res.json();
@@ -1167,7 +1189,7 @@
 
   /* ---------------------- 第 5 步：「发帖」改成从数据库读 ---------------------- */
   function loadPosts() {
-    fetch(API_BASE + '/api/posts')
+    publicFetch('/api/posts')
       .then(function (res) {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return res.json();

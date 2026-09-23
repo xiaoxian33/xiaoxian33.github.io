@@ -22,6 +22,7 @@ public record PostView(
         String tags,
         LocalDate publishedAt,
         LocalDateTime createdAt,
+        String visibility,
         List<String> images
 ) {
     /** 把实体 + 它的图片路径，合成前端要的形状 */
@@ -33,6 +34,7 @@ public record PostView(
                 post.getTags(),
                 post.getPublishedAt(),
                 post.getCreatedAt(),
+                post.isPrivate() ? "private" : "public",
                 images);
     }
 }

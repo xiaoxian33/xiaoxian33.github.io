@@ -221,6 +221,19 @@ body.nav-open .main { margin-left: var(--side-open); }
 .appear__img--wide { width: 170px; height: 84px; border-radius: 12px; }
 .appear__btns { display: flex; gap: 6px; }
 
+/* ------------------------------ 🔒 「仅自己可见」 ------------------------------ */
+.lock {
+  font-size: 11px; color: var(--accent); margin-left: 6px;
+  border: 1px solid rgba(var(--accent-rgb), .45);
+  background: rgba(var(--accent-rgb), .12);
+  border-radius: 999px; padding: 1px 8px;
+}
+.field--check {
+  display: flex; align-items: flex-start; gap: 8px;
+  cursor: pointer; font-size: 13.5px; color: var(--ink-3);
+}
+.field--check input { margin-top: 3px; accent-color: var(--accent); cursor: pointer; }
+
 /* ------------------------------ 📖 帖子详情弹窗 + 🔍 图片放大 ------------------------------ */
 /* ⚠️ class 统一用 postmodal__ 前缀 ✓
    不要用 .modal / .modal__title / .modal__close ✗ —— 那是「编辑面板」已经在用的名字，

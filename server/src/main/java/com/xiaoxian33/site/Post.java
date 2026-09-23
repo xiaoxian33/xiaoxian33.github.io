@@ -42,6 +42,19 @@ public class Post {
     @Column(name = "published_at")
     private LocalDate publishedAt;
 
+    /**
+     * 可见性（🔒 只给自己看）—— 和随笔同一套规则 ✓
+     *   null 或 "public" → 所有人可见 ✓
+     *   "private"        → 公开接口不返回 ✗✓ 只有站长模式能看到 ✓
+     */
+    @Column(length = 10)
+    private String visibility;
+
+    /** 这一条是不是"仅自己可见" */
+    public boolean isPrivate() {
+        return "private".equals(visibility);
+    }
+
     /** 真正被创建的时间 */
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -97,6 +110,14 @@ public class Post {
 
     public void setPublishedAt(LocalDate publishedAt) {
         this.publishedAt = publishedAt;
+    }
+
+    public String getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
     }
 
     public LocalDateTime getCreatedAt() {

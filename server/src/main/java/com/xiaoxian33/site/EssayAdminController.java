@@ -41,7 +41,9 @@ public class EssayAdminController {
     @PostMapping
     public EssayView create(@RequestBody EssayForm form) {
         LocalDate date = form.writtenOn() != null ? form.writtenOn() : LocalDate.now();
-        Essay saved = repository.save(new Essay(date, form.title(), form.body(), nextSortOrder()));
+        Essay essay = new Essay(date, form.title(), form.body(), nextSortOrder());
+        if (form.visibility() != null) essay.setVisibility(form.visibility());   // 🔒 新建时就能设 ✓
+        Essay saved = repository.save(essay);
 
         if (form.images() != null) {
             images.replace(ImageService.ESSAY, saved.getId(), form.images());
@@ -57,6 +59,8 @@ public class EssayAdminController {
                     if (form.writtenOn() != null) essay.setWrittenOn(form.writtenOn());
                     essay.setTitle(form.title());
                     essay.setBody(form.body());
+                    // 🔒 只切换"仅自己可见"时，前端只发 { "visibility": "private" } 就行 ✓
+                    if (form.visibility() != null) essay.setVisibility(form.visibility());
                     Essay saved = repository.save(essay);   // save = UPDATE（id 已存在）
 
                     if (form.images() != null) {

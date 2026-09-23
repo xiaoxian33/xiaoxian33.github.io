@@ -44,6 +44,23 @@ public class Essay {
     @Column(name = "sort_order")
     private Integer sortOrder;
 
+    /**
+     * 可见性（🔒 只给自己看）
+     * ------------------------------------------------------------
+     *   null 或 "public" → 所有人（含面试官、爬虫）都能看到 ✓
+     *   "private"        → 公开接口【不会返回它】✗✓ 只有站长模式能看到 ✓
+     *
+     * 为什么默认允许 null：老数据（加这个字段之前写的）都是 null ✓
+     * 它们必须继续当"公开"处理 ✓ 不然一上线你自己的随笔就全没了 ✗
+     */
+    @Column(length = 10)
+    private String visibility;
+
+    /** 这一篇是不是"仅自己可见" */
+    public boolean isPrivate() {
+        return "private".equals(visibility);
+    }
+
     /** JPA 需要一个空构造函数（🔸样板，不用管） */
     public Essay() {
     }
@@ -95,5 +112,13 @@ public class Essay {
 
     public void setSortOrder(Integer sortOrder) {
         this.sortOrder = sortOrder;
+    }
+
+    public String getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
     }
 }
